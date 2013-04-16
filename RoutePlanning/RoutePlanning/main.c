@@ -42,16 +42,16 @@ void enqueueInSortedList(struct Node * node){
     if (!openList.node) {
         openList=newElement;
     } else {
-        struct List currentListElement=openList;
-        if(node->totalCost<currentListElement.node->totalCost){
-            newElement.next=&openList;
+        struct List currentListElement=openList; 
+        if(node->totalCost<currentListElement.node->totalCost){//if smaller than top of stack add on top
+            newElement.next=&currentListElement;
             openList=newElement;
         } else {
             while (currentListElement.node->totalCost<=node->totalCost) {
                 if (!currentListElement.next) {
                     break;
                 } else {
-                    currentListElement=*currentListElement.next;
+                    currentListElement=*(currentListElement.next);
                 }
             }
             openList.next=&newElement;
