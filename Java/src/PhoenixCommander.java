@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.BorderLayout;
@@ -129,15 +130,15 @@ public class PhoenixCommander extends JFrame {
       summe += pathf[u+1][0] - pathf[u][1] ;
     } System.out.println("Summe: " + summe);
     
-    /*for (int n=0; n<anz ; n++ ) {  //würd ich rauslassen
+    /*for (int n=0; n<anz ; n++ ) {  //w��rd ich rauslassen
       punkte[n].setBounds(path[n][0], path[n][1], 20, 20);
       punkte[n].setSelected(true);    
       punkte[n].setVisible(true);           
-      cp.add(punkte[n]);                      //Kommentieren m�glich
+      cp.add(punkte[n]);                      //Kommentieren m���glich
       
       punktef[n].setBounds(pathf[n][0], pathf[n][1], 20, 20);               
       punkte[n].setVisible(true);
-      cp.add(punktef[n]);                    //Ent-Kommentieren f�r Checkboxen
+      cp.add(punktef[n]);                    //Ent-Kommentieren f���r Checkboxen
       repaint();
     }*/
     
@@ -161,19 +162,19 @@ public class PhoenixCommander extends JFrame {
   } 
   
   public void do_traject() {
-    int newpath [][];
-    newpath = pathf;
-    for (int z=0; z<smoothing ; z++) { 
-      for (int a=1; a<(anz-1) ; a++ ) {
-        for (int b=0; b<2 ; b++ ) {
-          int aux = newpath [a][b];
-          newpath[a][b] += wdata*(pathf[a][b] - newpath[a][b]);
-          newpath[a][b] += wsmooth*(newpath[a-1][b]+newpath[a+1][b]-(2.0*newpath[a][b]));
-          change += Math.abs(aux-newpath[a][b]);
-        }     
-      } 
+	Iterator<Point> itr = wayPoints.iterator();
+    private ArrayList<Point> oldWayPoints = new ArrayList<Point>(wayPoints);
+    for (int z=0; z<smoothing ; z++) {
+    	for(int i=1; i<=wayPoints.size()-1; i++)
+    	{
+    		Point newPath;
+    		aux.x=oldWayPoints.get(i-1).x;
+    		wayPoints.get(i).x += wdata*(aux.x - wayPoints.get(i).x);
+    		wayPoints.get(i).x += wsmooth*(wayPoints.get(i-1).x+wayPoints.get(i+1).x-(2.0*wayPoints.get(i).x));
+            change += Math.abs(aux.x-wayPoints.get(i).x);
+    	}
     }
-    pathf = newpath;
+    oldWayPoints = wayPoints.clone();
   }
   
   public void winkel() {
