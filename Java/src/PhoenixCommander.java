@@ -1,151 +1,108 @@
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.util.ArrayList;
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
-
-import javax.swing.*;
-
+import java.awt.RenderingHints;
+import java.io.File;
+import java.io.IOException;
 
 public class PhoenixCommander extends JFrame {
   
   private static final long serialVersionUID = 1L;
+  private String mapName="img/floorplan.png";
+  BufferedImage map, resizedMap;
+  private double scaleFactor=0.1;
+  private MapReader mapReader;
+  private RoutePlanner routePlanner;
+  private TrajectoryPlanner trajectoryPlanner;
+  private int windowWidth;
+  private int windowHeight;
   private MapPanel mapPanel;
   private JPanel controlPanel;
+  private Point phoenixPosition;
   private ArrayList<Point> wayPoints = new ArrayList<Point>();
-  private int anz = 40;                                 // Anzahl der Punkte
-  private int smoothing = 1;                            // SFaktor (1 bis 10)
-  double wdata = 0.5, wsmooth = 0.1, change = 0.01;     // mehr Smoothing
-  private int path [][] = new int [anz][2];             // Pfad vorher
-  private int pathf [][] = new int [anz][2];            // Pfad nachher
-  private JCheckBox punkte [] = new JCheckBox[anz];
-  private JCheckBox punktef [] = new JCheckBox[anz];  
-  private double winkel_array [] = new double [anz];    // Winkel 
-  private int wrong [] = new int[anz/4];                            
-  private Button bu1 = new Button("single");            // einzeln nachbessern
-  private Button bu2 = new Button("all");               // smoothing ++ ->alles
-  private Button bu3 = new Button("show points");       // Punkte anzeigen
+  private ArrayList<Point> wayPointsSmoothed= new ArrayList<Point>();
+  private Button bu4 = new Button("1. Plan Route");
+  private Button bu2 = new Button("2. Smoothe Trajectory");
+  private Button bu3 = new Button("3. Simulate Flight");
+  private Button bu1 = new Button("Reset");  
   
-  
-  public PhoenixCommander(String title) { 
-    super(title);
+  public PhoenixCommander() { 
+    super("PhoenixCommander");
+    
+    try{
+  	  map = ImageIO.read(new File(mapName));
+  	  resizedMap = resizeImageWithHint(map, map.getType(), (int)(map.getWidth()*scaleFactor), (int)(map.getHeight()*scaleFactor));
+  	  mapReader = new MapReader(resizedMap);
+  	  routePlanner = new RoutePlanner(mapReader.getMap());
+  	  trajectoryPlanner = new TrajectoryPlanner();
+      mapPanel = new MapPanel(resizedMap);
+      windowWidth=resizedMap.getWidth();
+      windowHeight=resizedMap.getHeight()+50;
+  	}catch(IOException e){
+  	  System.out.println(e.getMessage());
+  	}
+    
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-    setSize(900, 600);
+    setSize(windowWidth, windowHeight);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    setLocation((d.width-getSize().width)/2, (d.height-getSize().height)/2);
+    setLocation((d.width-getSize().width)/2,(d.height-getSize().height)/2);
+    setResizable(false);
     Container cp = getContentPane();
     cp.setLayout(new BorderLayout(5,5));
-    mapPanel = new MapPanel("img/floorplan.png");
     mapPanel.addMouseListener(new MouseAdapter() {
-	    public void mouseClicked(MouseEvent e) {
-	    	wayPoints.add(e.getPoint());
-		    renderWaypoints();
-	    }
-	});    
+      public void mouseClicked(MouseEvent e) {
+        Point currentPoint = new Point (e.getPoint().x, e.getPoint().y+25);
+        
+        if (wayPoints.size()>0){ 
+        	Point lastPoint = wayPointsSmoothed.get(wayPointsSmoothed.size()-1);
+        	int distance = (int)Math.sqrt(((lastPoint.x-currentPoint.x)*(lastPoint.x-currentPoint.x))+
+        			((lastPoint.y-currentPoint.y)*(lastPoint.y-currentPoint.y)));
+        	System.out.println("Distanz:  "+ distance);
+        	int wieviel = ((int)distance/15)-2;
+        	System.out.println("Wieviele:  "+ wieviel);
+          
+        	if (wieviel >= 1) {
+        		for (int i=1; i<wieviel; i++ ) {
+        			wayPointsSmoothed.add(new Point((int)(lastPoint.x + i * ((currentPoint.x-lastPoint.x)*1.0/wieviel)),
+        					(int)(lastPoint.y + i * ((currentPoint.y-lastPoint.y)*1.0/wieviel))));
+        		} 
+        	} 
+        	wayPointsSmoothed.add((Point)currentPoint.clone());
+        	wayPoints.add((Point)currentPoint.clone());
+        	routePlanner.setGoal((Point)currentPoint.clone());
+
+        } else { //handle blimp position & first waypoint added
+        	phoenixPosition=(Point)currentPoint.clone();
+        	routePlanner.setPosition((Point)currentPoint.clone());
+        	paintPhoenix();
+        	wayPoints.add((Point)currentPoint.clone());
+        	wayPointsSmoothed.add((Point)currentPoint.clone());  
+        } 
+        renderWaypoints();
+      }
+    });
+    mapPanel.setBackground(Color.cyan);
     cp.add(mapPanel, BorderLayout.CENTER);
     controlPanel= new JPanel();
-    controlPanel.setSize(100, 300);
+    controlPanel.setSize(300, 100);
     controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
-    cp.add(controlPanel, BorderLayout.PAGE_END);
-
+    cp.add(controlPanel, BorderLayout.PAGE_END);  
     setVisible(true);
-
     
-    path [0][0] = 10;       path [0][1] = 20;
-    path [1][0] = 40;       path [1][1] = 20;
-    path [2][0] = 70;       path [2][1] = 30;
-    path [3][0] = 80;       path [3][1] = 50;
-    path [4][0] = 80;       path [4][1] = 80;
-    path [5][0] = 60;       path [5][1] = 100;
-    path [6][0] = 80;       path [6][1] = 120;
-    path [7][0] = 100;      path [7][1] = 150;
-    path [8][0] = 120;      path [8][1] = 150;
-    path [9][0] = 150;      path [9][1] = 120;
-    
-    path [10][0] = 160;     path [10][1] = 160;
-    path [11][0] = 200;     path [11][1] = 200;
-    path [12][0] = 200;     path [12][1] = 230;
-    path [13][0] = 200;     path [13][1] = 250;
-    path [14][0] = 150;     path [14][1] = 240;
-    path [15][0] = 140;     path [15][1] = 180;
-    path [16][0] = 160;     path [16][1] = 100;
-    path [17][0] = 200;     path [17][1] = 110;
-    path [18][0] = 230;     path [18][1] = 150;
-    path [19][0] = 300;     path [19][1] = 200;
-    
-    path [20][0] = 300;     path [20][1] = 200;
-    path [21][0] = 350;     path [21][1] = 200;
-    path [22][0] = 400;     path [22][1] = 200;
-    path [23][0] = 400;     path [23][1] = 250;
-    path [24][0] = 400;     path [24][1] = 300;
-    path [25][0] = 350;     path [25][1] = 300;
-    path [26][0] = 300;     path [26][1] = 300;
-    path [27][0] = 300;     path [27][1] = 250;
-    path [28][0] = 280;     path [28][1] = 200;
-    path [29][0] = 500;     path [29][1] = 100;
-    
-    path [30][0] = 600;     path [30][1] = 100;
-    path [31][0] = 700;     path [31][1] = 100;
-    path [32][0] = 700;     path [32][1] = 200;
-    path [33][0] = 700;     path [33][1] = 300;
-    path [34][0] = 600;     path [34][1] = 300;
-    path [35][0] = 600;     path [35][1] = 400;
-    path [36][0] = 400;     path [36][1] = 400; 
-    path [37][0] = 400;     path [37][1] = 460;
-    path [38][0] = 300;     path [38][1] = 420;
-    path [39][0] = 100;     path [39][1] = 300;
-    
-    for (int g=0; g<anz ; g++ ) {
-      for (int h=0; h<2 ; h++) {
-        pathf[g][h] = path[g][h];
-      }
-    } 
-    
-    winkel();
-    ausgeben();
-    
-    int summe = 0;
-    for (int u=0; u<(anz-1) ; u++) {
-    summe += path[u+1][0]-path[u][1] ;}
-    System.out.println("Summe: " + summe);
-    
-    for (int i=0; i<anz ; i++ ) {
-      punkte[i] = new JCheckBox();
-      punktef[i] = new JCheckBox();
-    } 
-    
-    do_traject();
-    winkel();
-    ausgeben();
-    //find_wrong();
-    //winkel();
-    //ausgeben();
-    
-    summe = 0;
-    for (int u=0; u<(anz-1) ; u++) {
-      summe += pathf[u+1][0] - pathf[u][1] ;
-    } System.out.println("Summe: " + summe);
-    
-    /*for (int n=0; n<anz ; n++ ) {  //w��rd ich rauslassen
-      punkte[n].setBounds(path[n][0], path[n][1], 20, 20);
-      punkte[n].setSelected(true);    
-      punkte[n].setVisible(true);           
-      cp.add(punkte[n]);                      //Kommentieren m���glich
-      
-      punktef[n].setBounds(pathf[n][0], pathf[n][1], 20, 20);               
-      punkte[n].setVisible(true);
-      cp.add(punktef[n]);                    //Ent-Kommentieren f���r Checkboxen
-      repaint();
-    }*/
-    
-    bu1.addActionListener(new ActionListener() { 
-      public void actionPerformed(ActionEvent evt) { 
-      bu1_ActionPerformed(evt);}});
-    controlPanel.add(bu1);
+    bu4.addActionListener(new ActionListener() { 
+        public void actionPerformed(ActionEvent evt) { 
+        bu4_ActionPerformed(evt);}});
+      controlPanel.add(bu4);
     
     bu2.addActionListener(new ActionListener() { 
       public void actionPerformed(ActionEvent evt) { 
@@ -153,159 +110,126 @@ public class PhoenixCommander extends JFrame {
     controlPanel.add(bu2);
     
     bu3.addActionListener(new ActionListener() { 
-      public void actionPerformed(ActionEvent evt) { 
-      bu3_ActionPerformed(evt);}});
-    controlPanel.add(bu3);
+        public void actionPerformed(ActionEvent evt) { 
+        bu3_ActionPerformed(evt);}});
+      controlPanel.add(bu3);
+    
+    bu1.addActionListener(new ActionListener() { 
+        public void actionPerformed(ActionEvent evt) { 
+        bu1_ActionPerformed(evt);}});
+      controlPanel.add(bu1);
+    
     repaint();
-
     setVisible(true);
   } 
   
-  public void do_traject() {
-	Iterator<Point> itr = wayPoints.iterator();
-    private ArrayList<Point> oldWayPoints = new ArrayList<Point>(wayPoints);
-    for (int z=0; z<smoothing ; z++) {
-    	for(int i=1; i<=wayPoints.size()-1; i++)
-    	{
-    		Point newPath;
-    		aux.x=oldWayPoints.get(i-1).x;
-    		wayPoints.get(i).x += wdata*(aux.x - wayPoints.get(i).x);
-    		wayPoints.get(i).x += wsmooth*(wayPoints.get(i-1).x+wayPoints.get(i+1).x-(2.0*wayPoints.get(i).x));
-            change += Math.abs(aux.x-wayPoints.get(i).x);
-    	}
-    }
-    oldWayPoints = wayPoints.clone();
-  }
-  
-  public void winkel() {
-    
-    for (int a=0; a< (anz-2) ; a++) {
-      System.out.print("Winkel delta: ");
-      int ax = pathf[a+1][0] - pathf[a][0];
-      int ay = pathf[a+1][1] - pathf[a][1];
-      int bx = pathf[a+2][0] - pathf[a+1][0];
-      int by = pathf[a+2][1] - pathf[a+1][1];
-      
-      double alpha = (180/3.1415)*(Math.cos((ax*bx + ay*by)/ (Math.sqrt(ax*ax+ay*ay) * Math.sqrt(bx*bx+by*by) )));
-      winkel_array[a] = alpha;
-      System.out.println(" " + alpha);
-    } 
-  }
-  
-  public void find_wrong() {
-    for (int i=0; i< (anz/4) ; i++ ) { wrong[i] = 0;} 
-    for (int x=0; x<anz ; x++) {
-      if (winkel_array[x]>50) {
-        System.out.println("Fehler an Punkt:  " + x + " Wert: "+ winkel_array[x]);
-        do_single_trajectory(x+1);
-      }
-    } 
-  } 
-  
-  public void do_single_trajectory(int a) {
-    for (int x=0; x<2; x++ ) {
-      //pathf[a][x] += wdata*(pathf[a][x] - newpath[a][b]);
-      //pathf[a][x] += wsmooth*(newpath[a-1][b]+newpath[a+1][b]-(2.0*newpath[a][b]));
-      
-      //pathf[a][x] += wdata*(pathf[a][x] - path[a][x]);
-      //pathf[a][x] += wsmooth*(path[a-1][x]+path[a+1][x]-(2.0*path[a][x]));
-      
-      pathf[a][x] += wdata*(pathf[a][x] - pathf[a][x]);
-      pathf[a][x] += wsmooth*(pathf[a-1][x]+pathf[a+1][x]-(2.0*pathf[a][x]));
-      
-    } 
-  }  
-  
-  public void paint(Graphics g) {
-    super.paint(g);
-    int a = pathf[0][0];
-    int b = pathf[0][1]+10;
-    
-    Graphics2D g2d = (Graphics2D)g;
-    //g.setColor(new Color(0, 0, 255));
-    g.setColor(new Color(0, 0, 0));
-    for (int f=0; f<(anz-1); f++) {
-      g.drawLine(path[f][0]+a, path[f][1]+b, path[f+1][0]+a, path[f+1][1]+b);
-    }
-    
-    g.setColor(new Color(255, 0, 0));
-    BasicStroke stroke3= new BasicStroke(6.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL);
-    g2d.setStroke(stroke3);
-    
-    for (int f=0; f<(anz-1); f++) {
-      if (winkel_array[f] < 35) { g.setColor(new Color(0, 255, 0));}
-      else if(winkel_array[f] >= 35 && winkel_array[f] <50) { g.setColor(new Color(0, 0, 255));}
-      else if(winkel_array[f] > 50) { g.setColor(new Color(255, 0, 0));}
-      
-      //g.setColor(new Color(255, 0, 0));
-      g.drawLine(pathf[f][0]+a, pathf[f][1]+b, pathf[f+1][0]+a, pathf[f+1][1]+b);
-    }
-    
-    Point previousPoint=null;
-    g.setColor(Color.blue);
-    for (Point p : wayPoints){
-    	if (previousPoint!=null)
-    	{
-    		g.drawLine(previousPoint.x, previousPoint.y+16, p.x, p.y+16);
-    	}
-    	previousPoint=p;
-    }
-    
-  }
-  
-  public void ausgeben() {
-    for (int e=0; e<anz; e++) {
-      System.out.println("Punkt _ _ _:  "+e+"  " + path[e][0]+ " -- "+ path[e][1]);
-      System.out.println("Punktfinal_:  "+e+"  " + pathf[e][0]+ " -- "+ pathf[e][1]);      
-    }  System.out.println("\n");  
-  }
-  
-  public void renderWaypoints(){
-	    ImageIcon waypointIcon= new ImageIcon("img/waypoint.png");
-	    for (Point p : wayPoints){
-	    	JLabel label=new JLabel(waypointIcon);
-	    	label.setSize(32,32);
-	    	label.setLocation(p.x-16,p.y-32);
-	        mapPanel.add(label);
-	    }
-	    repaint();
-	    mapPanel.repaint();
-}
-  
   public static void main(String[] args) {
-    new PhoenixCommander("Phoenix Commander");
+    new PhoenixCommander();
   } 
+    
+  public void renderWaypoints(){
+	mapPanel.removeAll();
+    for (Point p : wayPoints){
+    	if(wayPoints.indexOf(p)==0)
+    	{
+    		paintPhoenix();
+    	} else if (wayPoints.indexOf(p)==wayPoints.size()-1){
+    		paintGoal(p);
+    		routePlanner.setGoal(p);
+    	} else {
+    		paintFlag(p);
+    	}
+    }
+    repaint();
+  }
+  
+  public void paintFlag(Point p){
+	    ImageIcon flagIcon = new ImageIcon("img/waypoint.png");
+	      JLabel label= new JLabel(flagIcon);
+	      label.setSize(32,32);
+	      label.setLocation(p.x-16,p.y-56);
+	      mapPanel.add(label);
+	      mapPanel.repaint();
+	  }
+  
+  public void paintPhoenix(){
+	    ImageIcon phoenixIcon = new ImageIcon("img/blimp.png");
+	      JLabel label= new JLabel(phoenixIcon);
+	      label.setSize(70,27);
+	      label.setLocation(phoenixPosition.x-35,phoenixPosition.y-35);
+	      mapPanel.add(label);
+	      mapPanel.repaint();
+	  }
+  
+  public void paintGoal(Point p){
+	    ImageIcon goalIcon = new ImageIcon("img/goal.png");
+	      JLabel label= new JLabel(goalIcon);
+	      label.setSize(50,50);
+	      label.setLocation(p.x-25,p.y-50);
+	      mapPanel.add(label);
+	      mapPanel.repaint();
+	  }
   
   public void bu1_ActionPerformed(ActionEvent evt) {
-    find_wrong();
-    winkel();
-    ausgeben();
-    repaint();
-  } 
-  public void bu2_ActionPerformed(ActionEvent evt) {
-    //smoothing += 1;
-    do_traject();
-    winkel();
-    ausgeben();
-    repaint();
-  } 
+	  	wayPoints.clear();
+	  	wayPointsSmoothed.clear();
+	  	mapPanel.removeAll();
+    	repaint();
+  }
+  
+  @SuppressWarnings("unchecked")
+public void bu2_ActionPerformed(ActionEvent evt) {
+	  	wayPointsSmoothed=trajectoryPlanner.smootheTrajectory( (ArrayList<Point>) wayPointsSmoothed.clone());
+	  	trajectoryPlanner.printresult("all");
+    	renderWaypoints();
+    	repaint();
+  }
+  
   public void bu3_ActionPerformed(ActionEvent evt) {
-    for (int n=0; n<anz ; n++ ) {      
-      
-      if (punkte[0].isVisible()) {
-        punkte[n].setVisible(false);                          
-        punktef[n].setVisible(false);
-      }
-      else {
-        punktef[n].setBounds(pathf[n][0], pathf[n][1], 20, 20);  
-        punkte[n].setVisible(true);                          
-        punktef[n].setVisible(true);
-      } 
-      repaint();
-    }
+	  	simulateFlight();
+}
+  
+  public void bu4_ActionPerformed(ActionEvent evt) {
+	  	wayPoints=routePlanner.planRoute();
+	  	renderWaypoints();
+	  	repaint();
+}
+  
+  private void simulateFlight() {
+	// TODO Auto-generated method stub
+}
+
+public void paint(Graphics g) {
+	  super.paint(g); 
+	  Graphics2D g2d = (Graphics2D)g;
     
-    repaint();
-  } 
-  
-  
+	  BasicStroke stroke3= new BasicStroke(2.5f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL);
+	  g2d.setStroke(stroke3);
+    
+	  //draw smoothed path in blue
+	  g.setColor(new Color(0, 0, 255));
+	  for (int i=0; i<wayPointsSmoothed.size()-1; i++ ) {
+		  g.drawLine(wayPointsSmoothed.get(i).x,wayPointsSmoothed.get(i).y,wayPointsSmoothed.get(i+1).x,wayPointsSmoothed.get(i+1).y);  
+	  } 
+	  
+	  //draw original path in black
+	  g.setColor(new Color(0, 0, 0));
+	  for (int i=0; i<wayPoints.size()-1; i++ ) {
+		  g.drawLine(wayPoints.get(i).x,wayPoints.get(i).y,wayPoints.get(i+1).x,wayPoints.get(i+1).y);    
+	  }	      
+  }
+
+private BufferedImage resizeImageWithHint(BufferedImage originalImage, int type, int width, int height){
+	 BufferedImage resizedImage = new BufferedImage(width, height, type);
+	 Graphics2D g = resizedImage.createGraphics();
+	 g.drawImage(originalImage, 0, 0, width, height, null);
+	 g.dispose();	
+	 g.setComposite(AlphaComposite.Src);
+
+	 g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	 g.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+	 g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+
+return resizedImage;
+}
 } 
