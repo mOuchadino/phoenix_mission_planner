@@ -20,7 +20,7 @@ public class PhoenixCommander extends JFrame {
   private static final long serialVersionUID = 1L;
   private String mapName="img/floorplan.png";
   BufferedImage map, resizedMap;
-  private double scaleFactor=0.1;
+  private double scaleFactor=1.0;
   private MapReader mapReader;
   private RoutePlanner routePlanner;
   private TrajectoryPlanner trajectoryPlanner;
@@ -91,7 +91,6 @@ public class PhoenixCommander extends JFrame {
         renderWaypoints();
       }
     });
-    mapPanel.setBackground(Color.cyan);
     cp.add(mapPanel, BorderLayout.CENTER);
     controlPanel= new JPanel();
     controlPanel.setSize(300, 100);

@@ -10,7 +10,6 @@ public class RoutePlanner {
     
     public RoutePlanner(int[][] initMap) {
     	map=initMap;
-    	testRouting();
     }
 	
 	public void setPosition(Point currentPosition) {
