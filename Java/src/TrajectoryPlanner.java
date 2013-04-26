@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class TrajectoryPlanner {
 	  private ArrayList<Point> wayPoints;
 	  private ArrayList<Point> wayPointsSmoothed;
-	  private ArrayList<Integer> winkel = new ArrayList<Integer>();
+	  private ArrayList<Double> angles = new ArrayList<Double>();
 	  double wdata = 0.5, wsmooth = 0.1, change = 0.01;     // smoothing parameter, what exactly do they do thomas?
 
 	
@@ -26,19 +26,20 @@ public class TrajectoryPlanner {
 	    return wayPointsTmp;
 	  }
 	  
-	  public void winkelMessen() {
-	    winkel.clear();
-	    for (int a=0; a<wayPointsSmoothed.size()-1; a++) { //sollte das ned bis wayPointsSmoothed.size gehen?
+	  public ArrayList<Double> calculateAngles() {
+	    angles.clear();
+	    double alpha=0;
+	    for (int a=0; a<wayPointsSmoothed.size()-1; a++) {
 	      System.out.print("Winkel delta: ");
 	      int ax = wayPointsSmoothed.get(a+1).x - wayPointsSmoothed.get(a).x;
 	      int ay = wayPointsSmoothed.get(a+1).y - wayPointsSmoothed.get(a).y;
 	      int bx = wayPointsSmoothed.get(a+2).x - wayPointsSmoothed.get(a+1).x;
 	      int by = wayPointsSmoothed.get(a+2).y - wayPointsSmoothed.get(a+1).y;
-	      //double alpha = (180/3.1415)*(Math.acos((ax*bx+ay*by)/((double)(Math.sqrt(ax*ax+ay*ay)*Math.sqrt(bx*bx+by*by)))));
-	      double alpha = (180/Math.PI) * Math.acos((ax*bx+ay*by*1.0)/(double)(Math.sqrt(ax*ax+ay*ay*1.0)*Math.sqrt(bx*bx+by*by*1.0)))    ;
-	      winkel.add(new Integer((int) alpha));
+	      alpha = (180/Math.PI) * Math.acos((ax*bx+ay*by*1.0)/(double)(Math.sqrt(ax*ax+ay*ay*1.0)*Math.sqrt(bx*bx+by*by*1.0)))    ;
+	      angles.add( alpha);
 	      System.out.println(" " + alpha);
 	    } 
+	    return angles;
 	  }
 	  
 	  public void printresult(String what)

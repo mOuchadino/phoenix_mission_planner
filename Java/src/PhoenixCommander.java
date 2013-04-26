@@ -22,19 +22,26 @@ public class PhoenixCommander extends JFrame {
   BufferedImage map, resizedMap;
   private double scaleFactor=1.0;
   private MapReader mapReader;
+  //private RosJavaBridge rosJavaBridge;
   private RoutePlanner routePlanner;
   private TrajectoryPlanner trajectoryPlanner;
   private int windowWidth;
   private int windowHeight;
+  private int simStepCounter=0;
+  Timer simTimer;
   private MapPanel mapPanel;
   private JPanel controlPanel;
-  private Point phoenixPosition;
   private ArrayList<Point> wayPoints = new ArrayList<Point>();
   private ArrayList<Point> wayPointsSmoothed= new ArrayList<Point>();
+  private ArrayList<Double> angles= new ArrayList<Double>();
   private Button bu4 = new Button("1. Plan Route");
   private Button bu2 = new Button("2. Smoothe Trajectory");
   private Button bu3 = new Button("3. Simulate Flight");
-  private Button bu1 = new Button("Reset");  
+  private Button bu1 = new Button("Reset");
+  ImageIcon phoenixIcon = new ImageIcon("img/blimp.png");
+  JLabel phoenixImg= new JLabel(phoenixIcon);
+  ImageIcon goalIcon = new ImageIcon("img/goal.png");
+  ImageIcon flagIcon = new ImageIcon("img/waypoint.png");
   
   public PhoenixCommander() { 
     super("PhoenixCommander");
@@ -43,6 +50,7 @@ public class PhoenixCommander extends JFrame {
   	  map = ImageIO.read(new File(mapName));
   	  resizedMap = resizeImageWithHint(map, map.getType(), (int)(map.getWidth()*scaleFactor), (int)(map.getHeight()*scaleFactor));
   	  mapReader = new MapReader(resizedMap);
+  	   //= new RosJavaBridge();
   	  routePlanner = new RoutePlanner(mapReader.getMap());
   	  trajectoryPlanner = new TrajectoryPlanner();
       mapPanel = new MapPanel(resizedMap);
@@ -82,9 +90,8 @@ public class PhoenixCommander extends JFrame {
         	routePlanner.setGoal((Point)currentPoint.clone());
 
         } else { //handle blimp position & first waypoint added
-        	phoenixPosition=(Point)currentPoint.clone();
         	routePlanner.setPosition((Point)currentPoint.clone());
-        	paintPhoenix();
+        	paintPhoenix(currentPoint);
         	wayPoints.add((Point)currentPoint.clone());
         	wayPointsSmoothed.add((Point)currentPoint.clone());  
         } 
@@ -131,7 +138,7 @@ public class PhoenixCommander extends JFrame {
     for (Point p : wayPoints){
     	if(wayPoints.indexOf(p)==0)
     	{
-    		paintPhoenix();
+    		paintPhoenix(p);
     	} else if (wayPoints.indexOf(p)==wayPoints.size()-1){
     		paintGoal(p);
     		routePlanner.setGoal(p);
@@ -143,7 +150,6 @@ public class PhoenixCommander extends JFrame {
   }
   
   public void paintFlag(Point p){
-	    ImageIcon flagIcon = new ImageIcon("img/waypoint.png");
 	      JLabel label= new JLabel(flagIcon);
 	      label.setSize(32,32);
 	      label.setLocation(p.x-16,p.y-56);
@@ -151,17 +157,25 @@ public class PhoenixCommander extends JFrame {
 	      mapPanel.repaint();
 	  }
   
-  public void paintPhoenix(){
-	    ImageIcon phoenixIcon = new ImageIcon("img/blimp.png");
-	      JLabel label= new JLabel(phoenixIcon);
-	      label.setSize(70,27);
-	      label.setLocation(phoenixPosition.x-35,phoenixPosition.y-35);
-	      mapPanel.add(label);
+private void turnPhoenix(Double degrees) {
+		// should turn Phoenix by an interger angle
+		BufferedImage bImage = new BufferedImage( phoenixIcon.getIconWidth(), phoenixIcon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);;
+		bImage.getGraphics().drawImage(phoenixIcon.getImage(), 0,0, phoenixIcon.getImageObserver());
+		bImage=rotate(bImage, 90.0);
+		phoenixIcon=new ImageIcon(bImage);
+	}
+  
+  public void paintPhoenix(Point p){
+	    
+	      phoenixImg.setSize(70,27);
+	      phoenixImg.setLocation(p.x-35,p.y-35);
+		  if(!phoenixImg.isDisplayable()){
+		      mapPanel.add(phoenixImg);
+		  }
 	      mapPanel.repaint();
 	  }
   
   public void paintGoal(Point p){
-	    ImageIcon goalIcon = new ImageIcon("img/goal.png");
 	      JLabel label= new JLabel(goalIcon);
 	      label.setSize(50,50);
 	      label.setLocation(p.x-25,p.y-50);
@@ -194,9 +208,28 @@ public void bu2_ActionPerformed(ActionEvent evt) {
 	  	repaint();
 }
   
-  private void simulateFlight() {
-	// TODO Auto-generated method stub
-}
+  @SuppressWarnings("unchecked")
+public void simulateFlight(){
+	  int timerDelay = 150;
+	  wayPointsSmoothed=trajectoryPlanner.smootheTrajectory( (ArrayList<Point>) wayPointsSmoothed.clone());
+	  trajectoryPlanner.calculateAngles();
+	  angles=trajectoryPlanner.calculateAngles();
+	  ActionListener taskPerformer = new ActionListener() {
+	      public void actionPerformed(ActionEvent evt) {
+	    	  if(simStepCounter==wayPointsSmoothed.size())
+	    	  {
+	    		  simTimer.stop();
+	    		  simStepCounter=0;
+	    	  }
+	    	  turnPhoenix(angles.get(simStepCounter));
+		      paintPhoenix(wayPointsSmoothed.get(simStepCounter));
+		      simStepCounter++;
+	      }
+	  };
+	  
+	  simTimer=new Timer(timerDelay, taskPerformer);
+	  simTimer.start();;
+	}
 
 public void paint(Graphics g) {
 	  super.paint(g); 
@@ -231,4 +264,19 @@ private BufferedImage resizeImageWithHint(BufferedImage originalImage, int type,
 
 return resizedImage;
 }
+
+public static BufferedImage rotate(BufferedImage image, double angle) {
+    double sin = Math.abs(Math.sin(angle)), cos = Math.abs(Math.cos(angle));
+    int w = image.getWidth(), h = image.getHeight();
+    int neww = (int)Math.floor(w*cos+h*sin), newh = (int)Math.floor(h*cos+w*sin);
+    GraphicsConfiguration gc = getDefaultConfiguration();
+    BufferedImage result = gc.createCompatibleImage(neww, newh, Transparency.TRANSLUCENT);
+    Graphics2D g = result.createGraphics();
+    g.translate((neww-w)/2, (newh-h)/2);
+    g.rotate(angle, w/2, h/2);
+    g.drawRenderedImage(image, null);
+    g.dispose();
+    return result;
+}
+
 } 
