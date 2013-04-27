@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class TrajectoryPlanner {
 	  private ArrayList<Point> wayPoints;
 	  private ArrayList<Point> wayPointsSmoothed;
-	  private ArrayList<Double> angles = new ArrayList<Double>();
+	  private ArrayList<Float> angles = new ArrayList<Float>();
 	  double wdata = 0.5, wsmooth = 0.1, change = 0.01;     // smoothing parameter, what exactly do they do thomas?
 
 	
@@ -26,19 +26,33 @@ public class TrajectoryPlanner {
 	    return wayPointsTmp;
 	  }
 	  
-	  public ArrayList<Double> calculateAngles() {
+	  public ArrayList<Float> calculateAngles(ArrayList<Point> wps) {
+		 wayPointsSmoothed=wps;
+		System.out.println("Total of "+wayPointsSmoothed.size()+" interpolated waypoints found, calculating angles");
 	    angles.clear();
-	    double alpha=0;
-	    for (int a=0; a<wayPointsSmoothed.size()-1; a++) {
-	      System.out.print("Winkel delta: ");
-	      int ax = wayPointsSmoothed.get(a+1).x - wayPointsSmoothed.get(a).x;
-	      int ay = wayPointsSmoothed.get(a+1).y - wayPointsSmoothed.get(a).y;
-	      int bx = wayPointsSmoothed.get(a+2).x - wayPointsSmoothed.get(a+1).x;
-	      int by = wayPointsSmoothed.get(a+2).y - wayPointsSmoothed.get(a+1).y;
-	      alpha = (180/Math.PI) * Math.acos((ax*bx+ay*by*1.0)/(double)(Math.sqrt(ax*ax+ay*ay*1.0)*Math.sqrt(bx*bx+by*by*1.0)))    ;
+	    float alpha=0;
+	    int ax,ay,bx,by;
+	    //for the first angle use derivation from north
+	    bx = wayPointsSmoothed.get(1).x - wayPointsSmoothed.get(0).x;
+	    by = wayPointsSmoothed.get(1).y - wayPointsSmoothed.get(0).y;
+	    alpha =(float) Math.toDegrees(Math.atan2(by,bx) - Math.atan2(-1,0));
+	    angles.add( alpha);
+	    System.out.println("at wp 0 delta yaw "+ alpha); //drehwinkel in der horizontalen ebene bei flugzeugen yaw
+
+	    
+	    for (int a=0; a<wayPointsSmoothed.size()-2; a++) {
+	      ax = wayPointsSmoothed.get(a+1).x - wayPointsSmoothed.get(a).x;
+	      ay = wayPointsSmoothed.get(a+1).y - wayPointsSmoothed.get(a).y;
+	      bx = wayPointsSmoothed.get(a+2).x - wayPointsSmoothed.get(a+1).x;
+	      by = wayPointsSmoothed.get(a+2).y - wayPointsSmoothed.get(a+1).y;
+	      alpha =(float) Math.toDegrees(Math.atan2(by,bx) - Math.atan2(ay,ax));
 	      angles.add( alpha);
-	      System.out.println(" " + alpha);
-	    } 
+	      System.out.println("at wp " +a+1+ " delta yaw "+ alpha); //drehwinkel in der horizontalen ebene bei flugzeugen yaw
+	    }
+	    //FIXME
+	    angles.add( (float) 0.0);
+	    angles.add( (float) 0.0);
+
 	    return angles;
 	  }
 	  
