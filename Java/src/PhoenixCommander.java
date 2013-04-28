@@ -40,7 +40,7 @@ public class PhoenixCommander extends JFrame {
 		//rosJavaBridge = new RosJavaBridge();
 		trajectoryPlanner = new TrajectoryPlanner();
 		mapPanel = new MapPanel(mapReader.getResizedMapImage(), phoenix);
-		routePlanner = new RoutePlanner(mapReader.getMap(),mapPanel);
+		routePlanner = new RoutePlanner(mapReader.getMap());
 		windowWidth=mapReader.getResizedMapImage().getWidth();
 		windowHeight=mapReader.getResizedMapImage().getHeight()+50;   
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -69,11 +69,9 @@ public class PhoenixCommander extends JFrame {
 					} 
 					mapPanel.getWayPointsSmoothed().add((Point)currentPoint.clone());
 					mapPanel.getWayPoints().add((Point)currentPoint.clone());
-					routePlanner.setGoal((Point)currentPoint.clone());
 
 				} else { //handle blimp position & first waypoint added
 					phoenix.setLocation(currentPoint);
-					routePlanner.setPosition((Point)currentPoint.clone());
 					mapPanel.getWayPoints().add((Point)currentPoint.clone());
 					mapPanel.getWayPointsSmoothed().add((Point)currentPoint.clone());  
 				}
