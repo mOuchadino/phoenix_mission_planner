@@ -33,7 +33,7 @@ public class MapReader {
 
 		int h = resizedMapImage.getHeight();
 		int w = resizedMapImage.getWidth();
-		System.out.println(h + " " + w);
+		System.out.println("ResizedMap "+w + "x" + h);
 
 		map = new int[w][h];
 		List<Integer> basket = new ArrayList<Integer>();  
@@ -41,7 +41,7 @@ public class MapReader {
 		for(int i = 0; i < w; i++) {
 			for(int j = 0; j < h; j++) {
 				int pixel = resizedMapImage.getRGB(i, j);
-				map[i][j] = (pixel<-16)?9:1;
+				map[i][j] = (pixel<-16)?2000:1;
 				if(!basket.contains(map[i][j])){
 					basket.add(map[i][j]);
 				}
@@ -49,7 +49,7 @@ public class MapReader {
 		}
 		Collections.sort(basket);
 		for (Integer i : basket) {
-			System.out.println(Integer.toHexString(i) + ":" + i);
+			System.out.println("MapValue Range "+Integer.toHexString(i) + ":" + i);
 		}
 	}
 
