@@ -29,7 +29,7 @@ public class PhoenixCommander extends JFrame {
 	private JPanel controlPanel;
 	private ArrayList<Float> angles= new ArrayList<Float>();
 	private Button bu4 = new Button("1. Plan Route");
-	private Button bu2 = new Button("2. Smoothe Trajectory");
+	private Button bu2 = new Button("2. Generate Trajectory");
 	private Button bu3 = new Button("3. Simulate Flight");
 	private Button bu1 = new Button("Reset");
 
@@ -38,9 +38,9 @@ public class PhoenixCommander extends JFrame {
 
 		mapReader = new MapReader(mapName);
 		//rosJavaBridge = new RosJavaBridge();
-		routePlanner = new RoutePlanner(mapReader.getMap());
 		trajectoryPlanner = new TrajectoryPlanner();
 		mapPanel = new MapPanel(mapReader.getResizedMapImage(), phoenix);
+		routePlanner = new RoutePlanner(mapReader.getMap(),mapPanel);
 		windowWidth=mapReader.getResizedMapImage().getWidth();
 		windowHeight=mapReader.getResizedMapImage().getHeight()+50;   
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -116,8 +116,10 @@ public class PhoenixCommander extends JFrame {
 	} 
 
 	public void bu1_ActionPerformed(ActionEvent evt) {
+		mapPanel.getRoute().clear();
 		mapPanel.getWayPoints().clear();
 		mapPanel.getWayPointsSmoothed().clear();
+		routePlanner.getRoute().clear();
 		phoenix.resetGlobalYaw();
 		repaint();
 	}
@@ -126,7 +128,7 @@ public class PhoenixCommander extends JFrame {
 	//smoothe the trajectory
 	@SuppressWarnings("unchecked")
 	public void bu2_ActionPerformed(ActionEvent evt) {
-		mapPanel.setWayPointsSmoothed(trajectoryPlanner.smootheTrajectory( (ArrayList<Point>) mapPanel.getWayPointsSmoothed().clone()));
+		mapPanel.setWayPointsSmoothed(trajectoryPlanner.smootheTrajectory( (ArrayList<Point>) mapPanel.getRoute().clone()));
 		repaint();
 	}
 
@@ -137,11 +139,12 @@ public class PhoenixCommander extends JFrame {
 
 	//find the path
 	public void bu4_ActionPerformed(ActionEvent evt) {
-		mapPanel.setWayPoints(routePlanner.planRoute());
+		mapPanel.setRoute(routePlanner.planRoute(mapPanel.getWayPoints().get(0),mapPanel.getWayPoints().get(mapPanel.getWayPoints().size()-1)));
+		mapPanel.repaint();
 	}
 
 	public void simulateFlight(){
-		int timerDelay = 150;
+		int timerDelay = 50;
 		angles=trajectoryPlanner.calculateAngles(mapPanel.getWayPointsSmoothed());
 		ActionListener taskPerformer = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
