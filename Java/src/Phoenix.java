@@ -30,7 +30,6 @@ public class Phoenix {
 
 	public void setLocation(Point location) {
 		this.location = location;
-		System.out.println("Phoenix is at "+this.location);
 	}
 	
 	public Point getLocation() {
