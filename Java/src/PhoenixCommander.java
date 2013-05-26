@@ -39,8 +39,8 @@ public class PhoenixCommander extends JFrame {
 		mapReader = new MapReader(mapName);
 		//rosJavaBridge = new RosJavaBridge();
 		trajectoryPlanner = new TrajectoryPlanner();
-		mapPanel = new MapPanel(mapReader.getResizedMapImage(), phoenix);
-		routePlanner = new RoutePlanner(mapReader.getMap());
+		mapPanel = new MapPanel(mapReader.getResizedMapImage(),mapReader.getCostMap(), phoenix);
+		routePlanner = new RoutePlanner(mapReader.getCostMap());
 		windowWidth=mapReader.getResizedMapImage().getWidth();
 		windowHeight=mapReader.getResizedMapImage().getHeight()+50;   
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -122,23 +122,25 @@ public class PhoenixCommander extends JFrame {
 		repaint();
 	}
 
+	//find the path
+	public void bu4_ActionPerformed(ActionEvent evt) {
+		try {
+			mapPanel.setRoute(routePlanner.planRoute(mapPanel.getWayPoints()));
+		} catch (MaxIterationsException e) {
+			System.out.println("Too many iterations needed to plan route, maybe no route to point");
+		}
+		mapPanel.repaint();
+	}
 
 	//smoothe the trajectory
-	@SuppressWarnings("unchecked")
 	public void bu2_ActionPerformed(ActionEvent evt) {
-		mapPanel.setWayPointsSmoothed(trajectoryPlanner.smootheTrajectory( (ArrayList<Point>) mapPanel.getRoute().clone()));
+		mapPanel.setTrajectory(trajectoryPlanner.smootheTrajectory( mapPanel.getRoute().clone()));
 		repaint();
 	}
 
 	//simulate the flight
 	public void bu3_ActionPerformed(ActionEvent evt) {
 		simulateFlight();
-	}
-
-	//find the path
-	public void bu4_ActionPerformed(ActionEvent evt) {
-		mapPanel.setRoute(routePlanner.planRoute(mapPanel.getWayPoints().get(0),mapPanel.getWayPoints().get(mapPanel.getWayPoints().size()-1)));
-		mapPanel.repaint();
 	}
 
 	public void simulateFlight(){

@@ -5,12 +5,10 @@ import java.util.LinkedList;
 
 public class RoutePlanner {
 
-	private Point startNode;
-	private Point goalNode;
 	private Node[][] map;
-	private ArrayList<Point> route=new ArrayList<Point>();
-	private LinkedList<Node> openList=new LinkedList<Node>();
 	private int mapWidth, mapHeight;
+	private Route route=new Route();
+	private LinkedList<Node> openList=new LinkedList<Node>();
 
 	public RoutePlanner(int[][] costMap) {
 		mapWidth=costMap.length;
@@ -27,30 +25,39 @@ public class RoutePlanner {
 		}
 	}
 
-	public void setPosition(Point currentPosition) {
-		startNode=currentPosition;
+	public Route planRoute(ArrayList<Point> viaPoints) throws MaxIterationsException {
+		if(viaPoints.size()<2)
+		{
+			System.out.println("Cannot plan route with less than start & goal ");
+			return null;
+		}else{
+			for(int i=0;i<viaPoints.size()-1;i++){//go through all segments between viapoints and plan
+				System.out.println("Planning route segment "+(i+1));
+				route.addSegment(planRouteSegment(viaPoints.get(i), viaPoints.get(i+1)));
+			}
+		}
+		return route;
 	}
 
-	public void setGoal(Point goalPosition) {
-		goalNode=goalPosition;		
-	}
 
-	public ArrayList<Point> planRoute(Point from, Point to) {
-		startNode=from;
-		goalNode=to;
-		System.out.println("Map Dimensions "+mapWidth+"x"+mapHeight+")");
-		System.out.println("Start is at ("+startNode.x+"/"+startNode.y+")");
-		System.out.println("Goal is at ("+goalNode.x+"/"+goalNode.y+")");
+	public ArrayList<Point> planRouteSegment(Point from, Point to) throws MaxIterationsException { //gets an arraylist of viapoints
+		int iterations=0,maxIterations=200000;
+		ArrayList<Point>routeSegment=new ArrayList<Point>();
+		Point startNode=from;
+		Point goalNode=to;
+		System.out.println("from ("+startNode.x+"/"+startNode.y+") to ("+goalNode.x+"/"+goalNode.y+")");
+		map[startNode.y][startNode.x].parent=null;
 		map[goalNode.y][goalNode.x].cost=0;
 		map[goalNode.y][goalNode.x].goal=true;
 		openList.add(map[startNode.y][startNode.x]);		//start at start node
 		Node currentNode;
 		Node neighbourNode;
-		while(!openList.isEmpty()){//add neighbours to openlist and do goalcheck
+		while(!openList.isEmpty() && iterations<maxIterations){//add neighbours to openlist and do goalcheck
 			currentNode=openList.removeFirst();
 			if(currentNode.goal==true)
 			{//we found it, return the path
-				System.out.println("Found goal at"+currentNode.location);
+				map[goalNode.y][goalNode.x].goal=false;
+				openList.clear();
 				return extractRoute(currentNode);
 			} else {
 				if (currentNode.location.y-1>=0 && currentNode.location.y-1<mapHeight)//above
@@ -63,10 +70,14 @@ public class RoutePlanner {
 							}
 							try{
 								neighbourNode=map[currentNode.location.y+r][currentNode.location.x+c];
-								explore(currentNode, neighbourNode);
-								if(!route.isEmpty())
-								{
-									return route;
+								routeSegment=explore(currentNode, neighbourNode, goalNode);
+								if(routeSegment != null){
+									if(!routeSegment.isEmpty())
+									{
+										map[goalNode.y][goalNode.x].goal=false;
+										openList.clear();
+										return routeSegment;
+									}
 								}
 							}
 							catch(ArrayIndexOutOfBoundsException e){
@@ -77,58 +88,57 @@ public class RoutePlanner {
 				}
 				Collections.sort(openList);
 				currentNode.visited=true;
+				iterations++;
 			}
 		}
-
+		if(iterations==maxIterations){
+			throw new MaxIterationsException("Too many iterations in route planning");
+		}
 		return null;
 	}
 
-	public double h(Point from) {
-		return Math.sqrt(Math.pow((double)goalNode.x-from.x,2)+Math.pow(goalNode.y-from.y,2));
+	public double h(Point from,Point to) {
+		return Math.sqrt(Math.pow((double)to.x-from.x,2)+Math.pow(to.y-from.y,2));
 	}
 
-	public void  explore(Node currentNode, Node neighbourNode)
+	public ArrayList<Point> explore(Node currentNode, Node neighbourNode,Point to)
 	{
 		if(!neighbourNode.visited){
-			if(neighbourNode.goal==true){
-				System.out.println("Found goal at"+neighbourNode.location);
+			if(neighbourNode.goal==true){//prematurely found goal
 				neighbourNode.parent=currentNode;
-				route=extractRoute(neighbourNode);
+				return extractRoute(neighbourNode);
 			}
 			neighbourNode.g=currentNode.g+neighbourNode.cost;
-			neighbourNode.h=h(neighbourNode.location);
+			neighbourNode.h=h(neighbourNode.location,to);
 			neighbourNode.f=neighbourNode.g+neighbourNode.h;
 			neighbourNode.parent=currentNode;
 			if(!openList.contains(neighbourNode)){
 				openList.add(neighbourNode);
 			}
 		}
+		return null;
 	}
 
 	public ArrayList<Point> extractRoute(Node node)
 	{
+		ArrayList<Point> routeSegment=new ArrayList<Point>();
 		while(node.parent!=null)
 		{
-			route.add(node.location);
+			routeSegment.add(node.location);
 			node=node.parent;
 		}
-		Collections.reverse(route);
+		Collections.reverse(routeSegment);
+		return routeSegment;
+	}
 
-		for(Point p:route)
-		{
-			System.out.println(p);
-		}
+	public Route getRoute() {
 		return route;
 	}
 
-	public ArrayList<Point> getRoute() {
-		return route;
-	}
-
-	public void setRoute(ArrayList<Point> route) {
+	public void setRoute(Route route) {
 		this.route = route;
 	}
-	
+
 	class Node implements Comparable<Node>
 	{
 		Point location;
@@ -152,4 +162,3 @@ public class RoutePlanner {
 		}
 	}
 }
-

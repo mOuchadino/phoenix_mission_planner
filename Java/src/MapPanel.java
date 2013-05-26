@@ -17,18 +17,20 @@ public class MapPanel extends JPanel{
 
 	private static final long serialVersionUID = -6348356140496920472L;
 	private BufferedImage resizedImage;
+	private int[][] costMap;
+
 	private ArrayList<Point> wayPoints = new ArrayList<Point>();
 	private ArrayList<Point> wayPointsSmoothed= new ArrayList<Point>();
-	private ArrayList<Point> route = new ArrayList<Point>();
+	private Route route = new Route();
 	private Phoenix phoenix;
 	public boolean drawRoute=false;
 
 	BufferedImage phoenixImg, goalImg, flagImg;
 
 
-	public MapPanel(BufferedImage map, Phoenix phoenix) {               
-		resizedImage=map;
-
+	public MapPanel(BufferedImage map,int[][] costMap, Phoenix phoenix) {               
+		this.resizedImage=map;
+		this.costMap=costMap;
 		this.phoenix=phoenix;
 		try{
 			phoenixImg = ImageIO.read(new File("img/blimp.png"));
@@ -40,11 +42,11 @@ public class MapPanel extends JPanel{
 		}
 	}
 
-	public ArrayList<Point> getRoute() {
+	public Route getRoute() {
 		return route;
 	}
 
-	public void setRoute(ArrayList<Point> route) {
+	public void setRoute(Route route) {
 		this.route = route;
 		drawRoute=true;
 	}
@@ -61,7 +63,7 @@ public class MapPanel extends JPanel{
 		return wayPointsSmoothed;
 	}
 
-	public void setWayPointsSmoothed(ArrayList<Point> wayPointsSmoothed) {
+	public void setTrajectory(ArrayList<Point> wayPointsSmoothed) {
 		this.wayPointsSmoothed = wayPointsSmoothed;
 	}
 
@@ -70,9 +72,23 @@ public class MapPanel extends JPanel{
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D)g;
 
-		//draw the map
+		//draw the map as image
 		g2d.drawImage(resizedImage, 0, 0, null);
 
+		//overlay the costMap
+		for(int i = 0; i < 1024; i++) {
+			for(int j = 0; j < 533; j++) {
+				if (costMap[i][j]>=2000) {
+					//g2d.setColor(new Color(0,0,0));
+					continue;
+				}else if(costMap[i][j]>=14) {
+					g2d.setColor(new Color(0.2f, 0.2f,0.2f,0.2f));
+				}else if(costMap[i][j]>=1){
+					g2d.setColor(new Color(255,255,255));
+				}
+				g2d.drawLine(i,j,i,j);  
+			}
+		}
 
 
 		BasicStroke stroke3= new BasicStroke(2.5f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL);
@@ -81,8 +97,10 @@ public class MapPanel extends JPanel{
 		//draw route in red
 		if(drawRoute){
 			g2d.setColor(new Color(255, 0,0));
-			for (int i=0; i<route.size()-2; i++ ) {
-				g2d.drawLine(route.get(i).x,route.get(i).y,route.get(i+1).x,route.get(i+1).y);  
+			for(ArrayList<Point> segment:route.getSegments()){
+				for (int i=0; i<segment.size()-2; i++ ) {
+					g2d.drawLine(segment.get(i).x,segment.get(i).y,segment.get(i+1).x,segment.get(i+1).y);  
+				} 
 			} 
 		}
 
