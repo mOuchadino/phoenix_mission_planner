@@ -18,8 +18,6 @@ public class Phoenix {
 	private double yaw;
 	private double globalYaw;
 	
-	
-	
 	public double getGlobalYaw() {
 		return globalYaw;
 	}
@@ -59,7 +57,5 @@ public class Phoenix {
 	public void setYaw(double yaw) {
 		this.yaw = yaw;
 		globalYaw+=yaw;
-		System.out.println("yaw is "+this.yaw);
-		System.out.println("Globalyaw is "+this.globalYaw);
 	}	
 }

@@ -14,17 +14,19 @@ import javax.swing.WindowConstants;
 public class PhoenixCommander extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private String mapName="img/floorplan.png";
-	BufferedImage map, resizedMap;
+
+	private Phoenix phoenix;
 	private MapReader mapReader;
 	private RoutePlanner routePlanner;
 	private TrajectoryPlanner trajectoryPlanner;
-	private Phoenix phoenix= new Phoenix();
-	//private RosJavaBridge rosJavaBridge;
+	private PoseListener poseListener;
+	private NavCmdPublisher navCmdPublisher;
+	private String mapName="img/floorplan.png";
+	private BufferedImage map, resizedMap;
 	private int windowWidth;
 	private int windowHeight;
 	private int simStepCounter=0;
-	Timer simTimer;
+	private Timer simTimer;
 	private MapPanel mapPanel;
 	private JPanel controlPanel;
 	private ArrayList<Float> angles= new ArrayList<Float>();
@@ -35,9 +37,10 @@ public class PhoenixCommander extends JFrame {
 
 	public PhoenixCommander() { 
 		super("PhoenixCommander");
-
+		phoenix= new Phoenix();
 		mapReader = new MapReader(mapName);
-		//rosJavaBridge = new RosJavaBridge();
+		poseListener = new PoseListener(phoenix);
+		navCmdPublisher = new NavCmdPublisher(phoenix,1);
 		trajectoryPlanner = new TrajectoryPlanner();
 		mapPanel = new MapPanel(mapReader.getResizedMapImage(),mapReader.getCostMap(), phoenix);
 		routePlanner = new RoutePlanner(mapReader.getCostMap());
