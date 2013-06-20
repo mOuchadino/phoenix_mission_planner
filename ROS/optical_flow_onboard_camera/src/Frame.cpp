@@ -5,10 +5,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <ros/ros.h>
 
-static const int lineThickness = 1;
-static const double pi = 3.14159265358979323846;
-static const CvScalar lineColor = CV_RGB(0, 170, 255);
-
 Frame::Frame(CvSize* frameSize, IplImage* img)
 {
   featureCount = maxFeatureCount;
@@ -69,45 +65,9 @@ OptFlowResult Frame::calculateOpticalFlow(IplImage* nextImage, IplImage* resultP
 
   // Only draw on the result image, if one was given
   if (resultPane != NULL)
-  {
     ofr.draw(resultPane);
-//    std::vector<CvPoint>::iterator itrOffset = ofr.offset.begin();
-//    for (std::vector<CvPoint>::iterator itr = ofr.newPos.begin(); itr != ofr.newPos.end(); ++itr)
-//    {
-//      drawOpticalFlowResults(&*itr, &*itrOffset, resultPane);
-//      ++itrOffset;
-//    }
-  }
-
-  ROS_INFO("Calculated avg. movement: X = %d, Y = %d using %d (%d) features", (int )ofr.avgOffset.x,
-           (int )ofr.avgOffset.y, (int )ofr.newPos.size(), (int )(ofr.newPos.size() * 100 / featureCount));
 
   return ofr;
-}
-
-void Frame::drawOpticalFlowResults(CvPoint* currentLocation, CvPoint* offset, IplImage* resultPane)
-{
-  CvPoint previousLocation;
-  previousLocation.x = currentLocation->x + offset->x;
-  previousLocation.y = currentLocation->y + offset->y;
-  double angle = atan2((double)previousLocation.y - currentLocation->y,
-                       (double)previousLocation.x - currentLocation->x);
-
-  /* Now we draw the main line of the arrow
-   * "CV_AA" means antialiased drawing.
-   * "0" means no fractional bits in the center cooridinate or radius.
-   */
-  cvLine(resultPane, previousLocation, *currentLocation, lineColor, lineThickness, CV_AA, 0);
-  /* Now draw the tips of the arrow.  I do some scaling so that the
-   * tips look proportional to the main line of the arrow.
-   */
-  previousLocation.x = (int)(currentLocation->x + 6 * cos(angle + pi / 4));
-  previousLocation.y = (int)(currentLocation->y + 6 * sin(angle + pi / 4));
-  cvLine(resultPane, *currentLocation, previousLocation, lineColor, lineThickness, CV_AA, 0);
-
-  previousLocation.x = (int)(currentLocation->x + 6 * cos(angle - pi / 4));
-  previousLocation.y = (int)(currentLocation->y + 6 * sin(angle - pi / 4));
-  cvLine(resultPane, *currentLocation, previousLocation, lineColor, lineThickness, CV_AA, 0);
 }
 
 void Frame::detectFeatures()
@@ -118,10 +78,4 @@ void Frame::detectFeatures()
    */
   featureCount = maxFeatureCount;
   cvGoodFeaturesToTrack(image, eig_image, temp_image, features, &featureCount, .01, .01, NULL);
-}
-
-void Frame::updateOffset(double *offset, double featureCounter, int prevVal, int currVal)
-{
-  double factor = (featureCounter - 1) / featureCounter;
-  *offset = (factor * *offset) + (1 - factor) * (prevVal - currVal);
 }

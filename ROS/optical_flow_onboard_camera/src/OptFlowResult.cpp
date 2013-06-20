@@ -5,10 +5,11 @@
  *      Author: ic3
  */
 #include "OptFlowResult.h"
+#include <ros/ros.h>
 #include <opencv/cv.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <std_msgs/Float64MultiArray.h>
+#include <geometry_msgs/Twist.h>
 
 static const int lineThickness = 1;
 static const double pi = 3.14159265358979323846;
@@ -44,16 +45,30 @@ OptFlowResult::OptFlowResult(int featureCount, CvPoint2D32f* prevPosArray, CvPoi
     this->error.push_back(error[i]);
   }
 
-  avgOffset.x /= newPos.size();
-  avgOffset.y /= newPos.size();
+  // Calculate average if at least one feature has been used
+  if ( newPos.size() > 0 ) {
+    avgOffset.x /= newPos.size();
+    avgOffset.y /= newPos.size();
+  }
+
+  // Error handling if no feature of the previous frame has been found
+  else {
+    ROS_INFO("No feature of previous frame detected!");
+  }
+
+  // Eventually prepare anything related to the drawing of the result
+  cvInitFont(&font, CV_FONT_HERSHEY_PLAIN, .8, .8);
 }
 
-std_msgs::Float64MultiArray OptFlowResult::toRosMessage()
+geometry_msgs::Twist OptFlowResult::toRosMessage()
 {
-  std_msgs::Float64MultiArray msg;
-  msg.data.clear();
-  msg.data.push_back(avgOffset.x);
-  msg.data.push_back(avgOffset.y);
+  geometry_msgs::Twist msg;
+  msg.linear.x = avgOffset.x;
+  msg.linear.y = avgOffset.y;
+//  msg.linear.z = 0;
+//  msg.angular.x = 0;
+//  msg.angular.y = 0;
+//  msg.angular.z = 0;
   return msg;
 }
 
@@ -67,13 +82,11 @@ void OptFlowResult::draw(IplImage* resultPane)
     ++itrOffset;
   }
 
-  // Draw the average result
-  cvRectangle(resultPane, cvPoint(0, 0), cvPoint(200, 20), colorBlack, CV_FILLED);
-  CvFont font;
-  cvInitFont(&font, CV_FONT_HERSHEY_PLAIN, .6, .6, 0, 1);
-  std::stringstream txt;
-  txt << "X: " << avgOffset.x << " Y: " << avgOffset.y;
-//  cvPutText(resultPane, txt.str(), cvPoint(2, 18), &font, lineColor);
+  // Draw some additional information (e.g. average) on the image
+  char buffer [100];
+  std::sprintf(buffer, "X: %-+5.1f Y: %-+5.1f", avgOffset.x, avgOffset.y);
+  cvRectangle(resultPane, cvPoint(0, 0), cvPoint(resultPane->width, 20), colorBlack, CV_FILLED);
+  cvPutText(resultPane, buffer, cvPoint(2, 18), &font, lineColor);
 }
 
 void OptFlowResult::draw(CvPoint* currentLocation, CvPoint* offset, IplImage* resultPane)

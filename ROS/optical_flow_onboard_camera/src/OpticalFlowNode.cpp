@@ -4,7 +4,7 @@
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <sensor_msgs/image_encodings.h>
-#include <std_msgs/Float64MultiArray.h>
+#include <geometry_msgs/Twist.h>
 
 #include "OpticalFlowNode.h"
 #include "OptFlowResult.h"
@@ -21,7 +21,7 @@ OpticalFlowNode::OpticalFlowNode() :
   // Advertise the calculated optical flow
   std::string publishTopic;
   nodeHandle.param("publishTopic", publishTopic, std::string("opticalFlow"));
-  publisher = nodeHandle.advertise<std_msgs::Float64MultiArray>(publishTopic, 10);
+  publisher = nodeHandle.advertise<geometry_msgs::Twist>(publishTopic, 10);
 }
 
 OpticalFlowNode::~OpticalFlowNode()
@@ -47,7 +47,7 @@ void OpticalFlowNode::processNextFrame(IplImage* img)
 
   // Publish the result
   publisher.publish(ofr.toRosMessage());
-  ROS_INFO("Published: [%d, %d]", (int )ofr.toRosMessage().data[0], (int )ofr.toRosMessage().data[1]);
+//  ROS_INFO("Published: [%d, %d]", (int )ofr.toRosMessage().data[0], (int )ofr.toRosMessage().data[1]);
 
   // Update the window with the current image and the calculated optical flow
   if (showCapture)

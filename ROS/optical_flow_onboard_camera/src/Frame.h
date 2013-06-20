@@ -54,11 +54,6 @@ private:
 
   // Detects good features (noticeable pixels) of this frame's image.
   void detectFeatures();
-
-  // Updates the given offset
-  void updateOffset(double *offset, double featureCounter, int prevVal, int currVal);
-
-  void drawOpticalFlowResults(CvPoint* previousLocation, CvPoint* currentLocation, IplImage* image);
 };
 
 #endif /* FRAME_H_ */

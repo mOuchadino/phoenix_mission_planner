@@ -9,7 +9,7 @@
 #define OPTFLOWRESULT_H_
 
 #include <opencv/cv.h>
-#include <std_msgs/Float64MultiArray.h>
+#include <geometry_msgs/Twist.h>
 
 class OptFlowResult
 {
@@ -36,12 +36,14 @@ public:
   OptFlowResult(int featureCount, CvPoint2D32f* prevPos, CvPoint2D32f* newPos, char* detected, float* error);
 
   // Converts the result to a ROS message
-  std_msgs::Float64MultiArray toRosMessage();
+  geometry_msgs::Twist toRosMessage();
 
   // Draws the result (e.g. arrows from old to new position) on the given resultPane
   void draw(IplImage* resultPane);
 
 private:
+
+  CvFont font;
 
   void draw(CvPoint* currentLocation, CvPoint* offset, IplImage* resultPane);
 };

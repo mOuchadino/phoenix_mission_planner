@@ -1,11 +1,11 @@
 #include <ros/ros.h>
 #include "OpticalFlowNode.h"
 #include <image_transport/image_transport.h>
-#include <std_msgs/Float64MultiArray.h>
+#include <geometry_msgs/Twist.h>
 
-void chatterCallback(const std_msgs::Float64MultiArray::ConstPtr& msg)
+void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
-  ROS_INFO("Received: [%d, %d]", (int )msg->data[0], (int )msg->data[1]);
+  ROS_INFO("Received: [%d, %d]", (int )msg->linear.x, (int )msg->linear.y);
   ros::spinOnce();
 }
 
