@@ -17,7 +17,10 @@ public class MapPanel extends JPanel{
 
 	private static final long serialVersionUID = -6348356140496920472L;
 	private BufferedImage resizedImage;
-	private int[][] costMap;
+	private MapNode[][] map;
+
+	int mapWidth;
+	int mapHeight;
 
 	private ArrayList<Point> wayPoints = new ArrayList<Point>();
 	private ArrayList<Point> wayPointsSmoothed= new ArrayList<Point>();
@@ -28,9 +31,11 @@ public class MapPanel extends JPanel{
 	BufferedImage phoenixImg, goalImg, flagImg;
 
 
-	public MapPanel(BufferedImage map,int[][] costMap, Phoenix phoenix) {               
-		this.resizedImage=map;
-		this.costMap=costMap;
+	public MapPanel(BufferedImage resizedImage,MapNode[][] map, Phoenix phoenix) {               
+		this.resizedImage=resizedImage;
+		this.map=map;
+		mapHeight=this.map.length;
+		mapWidth=this.map[0].length;
 		this.phoenix=phoenix;
 		try{
 			phoenixImg = ImageIO.read(new File("img/blimp.png"));
@@ -75,9 +80,9 @@ public class MapPanel extends JPanel{
 		//draw the map as image
 		g2d.drawImage(resizedImage, 0, 0, null);
 
-		//overlay the costMap
-		for(int i = 0; i < 1024; i++) {
-			for(int j = 0; j < 533; j++) {
+		/*///overlay the costMap
+		for(int i = 0; i < mapWidth; i++) {
+			for(int j = 0; j < mapHeight; j++) {
 				if (costMap[i][j]>=2000) {
 					//g2d.setColor(new Color(0,0,0));
 					continue;
@@ -88,7 +93,24 @@ public class MapPanel extends JPanel{
 				}
 				g2d.drawLine(i,j,i,j);  
 			}
+		}*/
+		
+		//overlay the Map
+		for(int i = 0; i < mapWidth; i++) {
+			for(int j = 0; j < mapHeight; j++) {
+				if (map[j][i].nextObstacleDistance==0 ) {
+					continue;
+				}else if (map[j][i].nextObstacleDistance==-1 ) {
+					continue;
+				} else {
+					g2d.setColor(new Color(map[j][i].nextObstacleDistance*2,0,0));
+				}
+				if(map[j][i].isGVD==true)
+					g2d.setColor(Color.ORANGE);
+				g2d.drawLine(i,j,i,j);  
+			}
 		}
+
 
 
 		BasicStroke stroke3= new BasicStroke(2.5f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL);

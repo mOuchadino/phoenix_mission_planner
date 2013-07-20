@@ -2,27 +2,63 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+//global route planner computes paths ignoring the kinematic and dynamic vehicle constraints (not real-time)
+//TODO: Implement D* Lite for replanning
 
 public class RoutePlanner {
 
-	private Node[][] map;
+	private MapNode[][] map;
 	private int mapWidth, mapHeight;
 	private Route route=new Route();
-	private LinkedList<Node> openList=new LinkedList<Node>();
+	private LinkedList<MapNode> openList=new LinkedList<MapNode>();
 
 	public RoutePlanner(int[][] costMap) {
 		mapWidth=costMap.length;
 		mapHeight=costMap[0].length;
-		map=new Node[mapHeight][mapWidth];
+		map=new MapNode[mapHeight][mapWidth];
 		for (int i = 0; i < mapHeight; i++) {//rows
 			for (int j = 0; j < mapWidth; j++) {//cols
-				map[i][j]=new Node();
+				map[i][j]=new MapNode();
 				map[i][j].cost=costMap[j][i];
 				map[i][j].g=costMap[j][i];
+				map[i][j].obstacle=(costMap[j][i]>=2000)?true:false;
+				map[i][j].nextObstacleDistance=(costMap[j][i]>=2000)?0:-1;
 				map[i][j].visited=false;
 				map[i][j].location=new Point(j,i);
 			}
 		}
+		bushfirePlanner();
+	}
+
+	public void bushfirePlanner(){
+		for(int d=0;d<125;d++){
+			for (int i = 0; i < mapHeight; i++) {//rows
+				for (int j = 0; j < mapWidth; j++) {//cols
+					if (map[i][j].nextObstacleDistance==d) //from the obstacles start a wave 
+					{
+						for(int r=-1;r<=1;r++){
+							for(int c=-1;c<=1;c++){
+								if(r==0 && c==0)//this is where we started;
+								{
+									continue; 
+								}
+								try{
+									if(map[i+r][j+c].nextObstacleDistance==-1)// if until now undiscovered
+									{
+										map[i+r][j+c].nextObstacleDistance=d+1;
+										map[i+r][j+c].waveOrigin=map[i][j];
+									} else if (map[i+r][j+c].nextObstacleDistance==d) {//if two different wavefronts collide
+										map[i+r][j+c].isGVD=true;
+									}
+								}
+								catch(ArrayIndexOutOfBoundsException e){
+								}
+							}
+						}
+					}
+				}
+			}
+		}	
 	}
 
 	public Route planRoute(ArrayList<Point> viaPoints) throws MaxIterationsException {
@@ -50,8 +86,8 @@ public class RoutePlanner {
 		map[goalNode.y][goalNode.x].cost=0;
 		map[goalNode.y][goalNode.x].goal=true;
 		openList.add(map[startNode.y][startNode.x]);		//start at start node
-		Node currentNode;
-		Node neighbourNode;
+		MapNode currentNode;
+		MapNode neighbourNode;
 		while(!openList.isEmpty() && iterations<maxIterations){//add neighbours to openlist and do goalcheck
 			currentNode=openList.removeFirst();
 			if(currentNode.goal==true)
@@ -101,7 +137,7 @@ public class RoutePlanner {
 		return Math.sqrt(Math.pow((double)to.x-from.x,2)+Math.pow(to.y-from.y,2));
 	}
 
-	public ArrayList<Point> explore(Node currentNode, Node neighbourNode,Point to)
+	public ArrayList<Point> explore(MapNode currentNode, MapNode neighbourNode,Point to)
 	{
 		if(!neighbourNode.visited){
 			if(neighbourNode.goal==true){//prematurely found goal
@@ -119,7 +155,7 @@ public class RoutePlanner {
 		return null;
 	}
 
-	public ArrayList<Point> extractRoute(Node node)
+	public ArrayList<Point> extractRoute(MapNode node)
 	{
 		ArrayList<Point> routeSegment=new ArrayList<Point>();
 		while(node.parent!=null)
@@ -139,26 +175,7 @@ public class RoutePlanner {
 		this.route = route;
 	}
 
-	class Node implements Comparable<Node>
-	{
-		Point location;
-		int cost;
-		int g;
-		double h;
-		double f;
-		boolean goal;
-		boolean visited;
-		Node parent;
-
-		@Override
-		public int compareTo(Node compareObject)
-		{
-			if (f < compareObject.f)
-				return -1;
-			else if (f == compareObject.f)
-				return 0;
-			else
-				return 1;
-		}
+	public MapNode[][] getNodeMap() {
+		return map;
 	}
 }

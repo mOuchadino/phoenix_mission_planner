@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
-public class PhoenixCommander extends JFrame {
+public class PhoenixMissionPlanner extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -19,9 +19,9 @@ public class PhoenixCommander extends JFrame {
 	private MapReader mapReader;
 	private RoutePlanner routePlanner;
 	private TrajectoryPlanner trajectoryPlanner;
-	private PoseListener poseListener;
-	private NavCmdPublisher navCmdPublisher;
-	private String mapName="img/floorplan.png";
+	//private PoseListener poseListener;
+	//private NavCmdPublisher navCmdPublisher;
+	private String mapName="img/tinyfloorplan.png";
 	private BufferedImage map, resizedMap;
 	private int windowWidth;
 	private int windowHeight;
@@ -35,22 +35,22 @@ public class PhoenixCommander extends JFrame {
 	private Button bu3 = new Button("3. Simulate Flight");
 	private Button bu1 = new Button("Reset");
 
-	public PhoenixCommander() { 
-		super("PhoenixCommander");
+	public PhoenixMissionPlanner() { 
+		super("Phoenix Mission Planner");
 		phoenix= new Phoenix();
 		mapReader = new MapReader(mapName);
-		poseListener = new PoseListener(phoenix);
-		navCmdPublisher = new NavCmdPublisher(phoenix,1);
+		//poseListener = new PoseListener(phoenix);
+		//navCmdPublisher = new NavCmdPublisher(phoenix,1);
 		trajectoryPlanner = new TrajectoryPlanner();
-		mapPanel = new MapPanel(mapReader.getResizedMapImage(),mapReader.getCostMap(), phoenix);
 		routePlanner = new RoutePlanner(mapReader.getCostMap());
+		mapPanel = new MapPanel(mapReader.getResizedMapImage(),routePlanner.getNodeMap(), phoenix);
 		windowWidth=mapReader.getResizedMapImage().getWidth();
 		windowHeight=mapReader.getResizedMapImage().getHeight()+50;   
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setSize(windowWidth, windowHeight);
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation((d.width-getSize().width)/2,(d.height-getSize().height)/2);
-		setResizable(false);
+		setResizable(true);
 		Container cp = getContentPane();
 		cp.setLayout(new BorderLayout(5,5));
 		mapPanel.addMouseListener(new MouseAdapter() {
@@ -113,7 +113,7 @@ public class PhoenixCommander extends JFrame {
 	} 
 
 	public static void main(String[] args) {
-		new PhoenixCommander();
+		new PhoenixMissionPlanner();
 	} 
 
 	public void bu1_ActionPerformed(ActionEvent evt) {

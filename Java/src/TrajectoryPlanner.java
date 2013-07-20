@@ -1,6 +1,7 @@
 import java.awt.Point;
 import java.util.ArrayList;
 
+//local the trajectory planner accounts for the constraints and generates feasible local trajectories in real-time (collision avoidance)
 
 public class TrajectoryPlanner {
 	  private ArrayList<Point> wayPoints=new ArrayList<Point>();

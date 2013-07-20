@@ -1,4 +1,5 @@
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.*;
@@ -6,11 +7,13 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+//TODO: Convolve with gaussian Kernel to smoothe path
+
 public class MapReader {
 
 	BufferedImage mapImage;
 	BufferedImage resizedMapImage;
-	private double scaleFactor=1.0;
+	private double scaleFactor=20.0;
 	int[][] map;
 
 	public MapReader(String mapName) {
@@ -30,9 +33,10 @@ public class MapReader {
 
 		for(int i = 0; i < w; i++) {
 			for(int j = 0; j < h; j++) {
-				int pixel = resizedMapImage.getRGB(i, j);
-				if(pixel<-16){
-					map[i][j]+=2000;
+				Color color = new Color(resizedMapImage.getRGB(i, j));
+				float[] greyPixel = Color.RGBtoHSB(color.getRed(),color.getGreen(),color.getBlue(),null);
+				if(greyPixel[2]<0.1){
+					map[i][j]=2000;
 					//treat surrounding  with safety
 					for (int dia=1;dia<maxDia;dia++){
 						for(int r=-dia;r<=dia;r++){
