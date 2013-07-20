@@ -1,5 +1,8 @@
+import geometry_msgs.Twist;
+import geometry_msgs.Vector3;
 import java.awt.Point;
 import org.apache.commons.logging.Log;
+import org.ros.concurrent.CancellableLoop;
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
 import org.ros.node.AbstractNodeMain;
@@ -14,12 +17,11 @@ When simulating a flight, we publish a geometry_msgs/Twist message on the /cmd_v
 public class NavCmdPublisher extends AbstractNodeMain {
 	private Phoenix phoenix;
 	private int hz; //publishing frequency in hz
-	private float[] linear,angular;
+	Vector3 linear;
+	Vector3 angular;
 
 	public NavCmdPublisher(Phoenix phoenix, int hz) {
 		this.phoenix=phoenix;
-		this.linear=new float[3];
-		this.angular=new float[3];
 		this.hz=hz;
 	}
 
@@ -44,10 +46,11 @@ public class NavCmdPublisher extends AbstractNodeMain {
 			@Override
 			protected void loop() throws InterruptedException {
 				geometry_msgs.Twist twist = publisher.newMessage();
-				linear[0]=phoenix.getLocation().x;//provisorisch
-				linear[1]=phoenix.getLocation().y;
-				angular[0]=(float)phoenix.getYaw();
-				twist.setData(linear,angular); //probably takes two 3x1 vectors
+				linear.setX(phoenix.getLocation().x);//provisorisch
+				linear.setY(phoenix.getLocation().y);
+				angular.setZ(phoenix.getYaw());
+				twist.setLinear(linear);
+				twist.setAngular(angular);
 				publisher.publish(twist);
 				sequenceNumber++;
 				Thread.sleep(1000/hz);
