@@ -1,0 +1,346 @@
+!SESSION 2013-04-22 22:31:58.972 -----------------------------------------------
+eclipse.buildId=M20130204-1200
+java.version=1.6.0_45
+java.vendor=Apple Inc.
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=de_DE
+Framework arguments:  -product org.eclipse.epp.package.java.product -product org.eclipse.epp.package.java.product -keyring /Users/tatsch/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.java.product -data /Users/tatsch/Documents/Studium/Robotics, Cognition, Intelligence/1. Semester/Project Phoenix/TUM_PHOENIX -product org.eclipse.epp.package.java.product -keyring /Users/tatsch/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2013-04-22 22:32:05.039
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.egit.ui 4 0 2013-04-22 22:33:28.178
+!MESSAGE Nothing to fetch.
+!STACK 0
+org.eclipse.jgit.api.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:137)
+	at org.eclipse.jgit.api.PullCommand.call(PullCommand.java:245)
+	at org.eclipse.egit.core.op.PullOperation$1.run(PullOperation.java:90)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2344)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2326)
+	at org.eclipse.egit.core.op.PullOperation.execute(PullOperation.java:121)
+	at org.eclipse.egit.ui.internal.pull.PullOperationUI.execute(PullOperationUI.java:115)
+	at org.eclipse.egit.ui.internal.pull.PullOperationUI$1.run(PullOperationUI.java:90)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+Caused by: org.eclipse.jgit.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.transport.Transport.fetch(Transport.java:1080)
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:128)
+	... 8 more
+
+!ENTRY org.eclipse.egit.ui 4 0 2013-04-22 22:33:49.273
+!MESSAGE Nothing to fetch.
+!STACK 1
+org.eclipse.core.runtime.CoreException: Nothing to fetch.
+	at org.eclipse.egit.ui.internal.fetch.FetchOperationUI.execute(FetchOperationUI.java:102)
+	at org.eclipse.egit.ui.internal.synchronize.SynchronizeFetchJob.run(SynchronizeFetchJob.java:74)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+Caused by: org.eclipse.jgit.api.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:137)
+	at org.eclipse.egit.core.op.FetchOperation.run(FetchOperation.java:127)
+	at org.eclipse.egit.ui.internal.fetch.FetchOperationUI.execute(FetchOperationUI.java:99)
+	... 2 more
+Caused by: org.eclipse.jgit.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.transport.Transport.fetch(Transport.java:1080)
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:128)
+	... 4 more
+!SUBENTRY 1 org.eclipse.egit.ui 4 0 2013-04-22 22:33:49.274
+!MESSAGE Nothing to fetch.
+!STACK 0
+org.eclipse.jgit.api.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:137)
+	at org.eclipse.egit.core.op.FetchOperation.run(FetchOperation.java:127)
+	at org.eclipse.egit.ui.internal.fetch.FetchOperationUI.execute(FetchOperationUI.java:99)
+	at org.eclipse.egit.ui.internal.synchronize.SynchronizeFetchJob.run(SynchronizeFetchJob.java:74)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+Caused by: org.eclipse.jgit.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.transport.Transport.fetch(Transport.java:1080)
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:128)
+	... 4 more
+
+!ENTRY org.eclipse.egit.core 4 0 2013-04-22 22:34:23.352
+!MESSAGE An exception occurred during push on URI git@github.com:MrTatsch/TUM_PHOENIX.git: git@github.com:MrTatsch/TUM_PHOENIX.git: Auth fail
+!STACK 0
+org.eclipse.jgit.errors.TransportException: git@github.com:MrTatsch/TUM_PHOENIX.git: Auth fail
+	at org.eclipse.jgit.transport.JschConfigSessionFactory.getSession(JschConfigSessionFactory.java:142)
+	at org.eclipse.jgit.transport.SshTransport.getSession(SshTransport.java:121)
+	at org.eclipse.jgit.transport.TransportGitSsh$SshPushConnection.<init>(TransportGitSsh.java:306)
+	at org.eclipse.jgit.transport.TransportGitSsh.openPush(TransportGitSsh.java:152)
+	at org.eclipse.jgit.transport.PushProcess.execute(PushProcess.java:130)
+	at org.eclipse.jgit.transport.Transport.push(Transport.java:1162)
+	at org.eclipse.egit.core.op.PushOperation.run(PushOperation.java:185)
+	at org.eclipse.egit.ui.internal.push.PushOperationUI.execute(PushOperationUI.java:147)
+	at org.eclipse.egit.ui.internal.push.PushOperationUI$1.run(PushOperationUI.java:209)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+Caused by: com.jcraft.jsch.JSchException: Auth fail
+	at com.jcraft.jsch.Session.connect(Session.java:482)
+	at org.eclipse.jgit.transport.JschConfigSessionFactory.getSession(JschConfigSessionFactory.java:116)
+	... 9 more
+
+!ENTRY org.eclipse.egit.ui 4 0 2013-04-22 22:34:42.868
+!MESSAGE Nothing to fetch.
+!STACK 1
+org.eclipse.core.runtime.CoreException: Nothing to fetch.
+	at org.eclipse.egit.ui.internal.fetch.FetchOperationUI.execute(FetchOperationUI.java:102)
+	at org.eclipse.egit.ui.internal.synchronize.SynchronizeFetchJob.run(SynchronizeFetchJob.java:74)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+Caused by: org.eclipse.jgit.api.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:137)
+	at org.eclipse.egit.core.op.FetchOperation.run(FetchOperation.java:127)
+	at org.eclipse.egit.ui.internal.fetch.FetchOperationUI.execute(FetchOperationUI.java:99)
+	... 2 more
+Caused by: org.eclipse.jgit.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.transport.Transport.fetch(Transport.java:1080)
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:128)
+	... 4 more
+!SUBENTRY 1 org.eclipse.egit.ui 4 0 2013-04-22 22:34:42.868
+!MESSAGE Nothing to fetch.
+!STACK 0
+org.eclipse.jgit.api.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:137)
+	at org.eclipse.egit.core.op.FetchOperation.run(FetchOperation.java:127)
+	at org.eclipse.egit.ui.internal.fetch.FetchOperationUI.execute(FetchOperationUI.java:99)
+	at org.eclipse.egit.ui.internal.synchronize.SynchronizeFetchJob.run(SynchronizeFetchJob.java:74)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+Caused by: org.eclipse.jgit.errors.TransportException: Nothing to fetch.
+	at org.eclipse.jgit.transport.Transport.fetch(Transport.java:1080)
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:128)
+	... 4 more
+
+!ENTRY org.eclipse.core.jobs 4 2 2013-04-22 22:35:08.050
+!MESSAGE An internal error occurred during: "Merging 3 resources.".
+!STACK 0
+java.lang.IllegalArgumentException: Attempted to beginRule: P/TUM_PHOENIX, does not match outer scope rule: F/TUM_PHOENIX/Java
+	at org.eclipse.core.runtime.Assert.isLegal(Assert.java:63)
+	at org.eclipse.core.internal.jobs.ThreadJob.illegalPush(ThreadJob.java:134)
+	at org.eclipse.core.internal.jobs.ThreadJob.push(ThreadJob.java:333)
+	at org.eclipse.core.internal.jobs.ImplicitJobs.begin(ImplicitJobs.java:63)
+	at org.eclipse.core.internal.jobs.JobManager.beginRule(JobManager.java:286)
+	at org.eclipse.core.internal.resources.WorkManager.checkIn(WorkManager.java:118)
+	at org.eclipse.core.internal.resources.Workspace.prepareOperation(Workspace.java:2282)
+	at org.eclipse.core.internal.resources.Folder.create(Folder.java:92)
+	at org.eclipse.core.internal.resources.Folder.create(Folder.java:125)
+	at org.eclipse.team.core.mapping.provider.MergeContext.ensureParentsExist(MergeContext.java:398)
+	at org.eclipse.team.core.mapping.provider.MergeContext$5.run(MergeContext.java:353)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2344)
+	at org.eclipse.team.core.mapping.provider.MergeContext.run(MergeContext.java:408)
+	at org.eclipse.team.core.mapping.provider.MergeContext.performReplace(MergeContext.java:345)
+	at org.eclipse.team.core.mapping.provider.MergeContext.performReplace(MergeContext.java:322)
+	at org.eclipse.team.core.mapping.provider.MergeContext.merge(MergeContext.java:144)
+	at org.eclipse.team.core.mapping.provider.MergeContext$3.run(MergeContext.java:87)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2344)
+	at org.eclipse.team.core.mapping.provider.MergeContext.run(MergeContext.java:408)
+	at org.eclipse.team.core.mapping.provider.MergeContext.merge(MergeContext.java:81)
+	at org.eclipse.team.internal.ui.mapping.ResourceMergeHandler$1.execute(ResourceMergeHandler.java:58)
+	at org.eclipse.team.ui.mapping.SynchronizationOperation.run(SynchronizationOperation.java:121)
+	at org.eclipse.team.internal.ui.actions.JobRunnableContext.run(JobRunnableContext.java:144)
+	at org.eclipse.team.internal.ui.actions.JobRunnableContext$ResourceJob.runInWorkspace(JobRunnableContext.java:72)
+	at org.eclipse.core.internal.resources.InternalWorkspaceJob.run(InternalWorkspaceJob.java:38)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+
+!ENTRY org.eclipse.core.jobs 4 2 2013-04-22 22:35:30.823
+!MESSAGE An internal error occurred during: "Merging 2 resources.".
+!STACK 0
+java.lang.IllegalArgumentException: Attempted to beginRule: P/TUM_PHOENIX, does not match outer scope rule: F/TUM_PHOENIX/Java/src
+	at org.eclipse.core.runtime.Assert.isLegal(Assert.java:63)
+	at org.eclipse.core.internal.jobs.ThreadJob.illegalPush(ThreadJob.java:134)
+	at org.eclipse.core.internal.jobs.ThreadJob.push(ThreadJob.java:333)
+	at org.eclipse.core.internal.jobs.ImplicitJobs.begin(ImplicitJobs.java:63)
+	at org.eclipse.core.internal.jobs.JobManager.beginRule(JobManager.java:286)
+	at org.eclipse.core.internal.resources.WorkManager.checkIn(WorkManager.java:118)
+	at org.eclipse.core.internal.resources.Workspace.prepareOperation(Workspace.java:2282)
+	at org.eclipse.core.internal.resources.Folder.create(Folder.java:92)
+	at org.eclipse.core.internal.resources.Folder.create(Folder.java:125)
+	at org.eclipse.team.core.mapping.provider.MergeContext.ensureParentsExist(MergeContext.java:398)
+	at org.eclipse.team.core.mapping.provider.MergeContext.ensureParentsExist(MergeContext.java:397)
+	at org.eclipse.team.core.mapping.provider.MergeContext$5.run(MergeContext.java:353)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2344)
+	at org.eclipse.team.core.mapping.provider.MergeContext.run(MergeContext.java:408)
+	at org.eclipse.team.core.mapping.provider.MergeContext.performReplace(MergeContext.java:345)
+	at org.eclipse.team.core.mapping.provider.MergeContext.performReplace(MergeContext.java:322)
+	at org.eclipse.team.core.mapping.provider.MergeContext.merge(MergeContext.java:144)
+	at org.eclipse.team.core.mapping.provider.MergeContext$3.run(MergeContext.java:87)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2344)
+	at org.eclipse.team.core.mapping.provider.MergeContext.run(MergeContext.java:408)
+	at org.eclipse.team.core.mapping.provider.MergeContext.merge(MergeContext.java:81)
+	at org.eclipse.team.internal.ui.mapping.ResourceMergeHandler$1.execute(ResourceMergeHandler.java:58)
+	at org.eclipse.team.ui.mapping.SynchronizationOperation.run(SynchronizationOperation.java:121)
+	at org.eclipse.team.internal.ui.actions.JobRunnableContext.run(JobRunnableContext.java:144)
+	at org.eclipse.team.internal.ui.actions.JobRunnableContext$ResourceJob.runInWorkspace(JobRunnableContext.java:72)
+	at org.eclipse.core.internal.resources.InternalWorkspaceJob.run(InternalWorkspaceJob.java:38)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+
+!ENTRY org.eclipse.team.core 4 -6 2013-04-22 22:36:11.749
+!MESSAGE Some conflicting changes cannot be merged automatically. These changes will have to be merged manually.
+!STACK 1
+org.eclipse.core.runtime.CoreException: Some conflicting changes cannot be merged automatically. These changes will have to be merged manually.
+	at org.eclipse.team.internal.ui.mapping.ResourceMergeHandler$1.execute(ResourceMergeHandler.java:60)
+	at org.eclipse.team.ui.mapping.SynchronizationOperation.run(SynchronizationOperation.java:121)
+	at org.eclipse.team.internal.ui.actions.JobRunnableContext.run(JobRunnableContext.java:144)
+	at org.eclipse.team.internal.ui.actions.JobRunnableContext$ResourceJob.runInWorkspace(JobRunnableContext.java:72)
+	at org.eclipse.core.internal.resources.InternalWorkspaceJob.run(InternalWorkspaceJob.java:38)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+!SUBENTRY 1 org.eclipse.team.core 4 1 2013-04-22 22:36:11.749
+!MESSAGE Some conflicting changes cannot be merged automatically. These changes will have to be merged manually.
+
+!ENTRY org.eclipse.egit.core 4 0 2013-04-22 22:37:27.737
+!MESSAGE An exception occurred during push on URI git@github.com:MrTatsch/TUM_PHOENIX.git: git@github.com:MrTatsch/TUM_PHOENIX.git: Auth fail
+!STACK 0
+org.eclipse.jgit.api.errors.TransportException: git@github.com:MrTatsch/TUM_PHOENIX.git: Auth fail
+	at org.eclipse.jgit.api.PushCommand.call(PushCommand.java:157)
+	at org.eclipse.egit.core.op.PushOperation.run(PushOperation.java:215)
+	at org.eclipse.egit.ui.internal.push.PushOperationUI.execute(PushOperationUI.java:147)
+	at org.eclipse.egit.ui.internal.push.PushOperationUI$1.run(PushOperationUI.java:209)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+Caused by: org.eclipse.jgit.errors.TransportException: git@github.com:MrTatsch/TUM_PHOENIX.git: Auth fail
+	at org.eclipse.jgit.transport.JschConfigSessionFactory.getSession(JschConfigSessionFactory.java:142)
+	at org.eclipse.jgit.transport.SshTransport.getSession(SshTransport.java:121)
+	at org.eclipse.jgit.transport.TransportGitSsh$SshPushConnection.<init>(TransportGitSsh.java:306)
+	at org.eclipse.jgit.transport.TransportGitSsh.openPush(TransportGitSsh.java:152)
+	at org.eclipse.jgit.transport.PushProcess.execute(PushProcess.java:130)
+	at org.eclipse.jgit.transport.Transport.push(Transport.java:1162)
+	at org.eclipse.jgit.api.PushCommand.call(PushCommand.java:153)
+	... 4 more
+Caused by: com.jcraft.jsch.JSchException: Auth fail
+	at com.jcraft.jsch.Session.connect(Session.java:482)
+	at org.eclipse.jgit.transport.JschConfigSessionFactory.getSession(JschConfigSessionFactory.java:116)
+	... 10 more
+
+!ENTRY org.eclipse.egit.ui 4 0 2013-04-22 22:40:40.542
+!MESSAGE Invalid remote: origin
+!STACK 1
+org.eclipse.core.runtime.CoreException: Invalid remote: origin
+	at org.eclipse.egit.ui.internal.fetch.FetchOperationUI.execute(FetchOperationUI.java:102)
+	at org.eclipse.egit.ui.internal.synchronize.SynchronizeFetchJob.run(SynchronizeFetchJob.java:74)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+Caused by: org.eclipse.jgit.api.errors.InvalidRemoteException: Invalid remote: origin
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:134)
+	at org.eclipse.egit.core.op.FetchOperation.run(FetchOperation.java:127)
+	at org.eclipse.egit.ui.internal.fetch.FetchOperationUI.execute(FetchOperationUI.java:99)
+	... 2 more
+Caused by: org.eclipse.jgit.errors.NoRemoteRepositoryException: origin: not found.
+	at org.eclipse.jgit.transport.TransportLocal$1.open(TransportLocal.java:130)
+	at org.eclipse.jgit.transport.TransportBundleFile$1.open(TransportBundleFile.java:105)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:553)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:313)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:284)
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:118)
+	... 4 more
+!SUBENTRY 1 org.eclipse.egit.ui 4 0 2013-04-22 22:40:40.542
+!MESSAGE Invalid remote: origin
+!STACK 0
+org.eclipse.jgit.api.errors.InvalidRemoteException: Invalid remote: origin
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:134)
+	at org.eclipse.egit.core.op.FetchOperation.run(FetchOperation.java:127)
+	at org.eclipse.egit.ui.internal.fetch.FetchOperationUI.execute(FetchOperationUI.java:99)
+	at org.eclipse.egit.ui.internal.synchronize.SynchronizeFetchJob.run(SynchronizeFetchJob.java:74)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+Caused by: org.eclipse.jgit.errors.NoRemoteRepositoryException: origin: not found.
+	at org.eclipse.jgit.transport.TransportLocal$1.open(TransportLocal.java:130)
+	at org.eclipse.jgit.transport.TransportBundleFile$1.open(TransportBundleFile.java:105)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:553)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:313)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:284)
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:118)
+	... 4 more
+
+!ENTRY org.eclipse.egit.ui 4 0 2013-04-22 22:40:40.547
+!MESSAGE Missing unknown 0657cc1e81a8db995fba8dc3ca082572a66d5741
+!STACK 0
+org.eclipse.jgit.errors.MissingObjectException: Missing unknown 0657cc1e81a8db995fba8dc3ca082572a66d5741
+	at org.eclipse.jgit.storage.file.WindowCursor.open(WindowCursor.java:126)
+	at org.eclipse.jgit.lib.ObjectReader.open(ObjectReader.java:229)
+	at org.eclipse.jgit.revwalk.RevWalk.parseAny(RevWalk.java:817)
+	at org.eclipse.jgit.revwalk.RevWalk.parseCommit(RevWalk.java:730)
+	at org.eclipse.egit.core.synchronize.GitCommitsModelCache.build(GitCommitsModelCache.java:330)
+	at org.eclipse.egit.ui.internal.synchronize.model.GitModelRepository.getChildren(GitModelRepository.java:66)
+	at org.eclipse.egit.ui.internal.synchronize.mapping.GitContainerMapping.getTraversals(GitContainerMapping.java:42)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.internalRefreshScope(SynchronizationScopeManager.java:229)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.access$1(SynchronizationScopeManager.java:221)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager$2.run(SynchronizationScopeManager.java:181)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2344)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.refresh(SynchronizationScopeManager.java:179)
+	at org.eclipse.team.core.subscribers.SubscriberScopeManager.access$1(SubscriberScopeManager.java:1)
+	at org.eclipse.team.core.subscribers.SubscriberScopeManager$2.run(SubscriberScopeManager.java:95)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2344)
+	at org.eclipse.team.core.subscribers.SubscriberScopeManager.refresh(SubscriberScopeManager.java:93)
+	at org.eclipse.team.core.mapping.provider.SynchronizationContext.refresh(SynchronizationContext.java:107)
+	at org.eclipse.team.internal.ui.synchronize.RefreshModelParticipantJob.doRefresh(RefreshModelParticipantJob.java:69)
+	at org.eclipse.team.internal.ui.synchronize.RefreshParticipantJob.run(RefreshParticipantJob.java:309)
+	at org.eclipse.team.internal.ui.synchronize.RefreshModelParticipantJob.run(RefreshModelParticipantJob.java:117)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+
+!ENTRY org.eclipse.egit.ui 4 0 2013-04-22 22:40:40.549
+!MESSAGE Missing unknown 0657cc1e81a8db995fba8dc3ca082572a66d5741
+!STACK 0
+org.eclipse.jgit.errors.MissingObjectException: Missing unknown 0657cc1e81a8db995fba8dc3ca082572a66d5741
+	at org.eclipse.jgit.storage.file.WindowCursor.open(WindowCursor.java:126)
+	at org.eclipse.jgit.lib.ObjectReader.open(ObjectReader.java:229)
+	at org.eclipse.jgit.revwalk.RevWalk.parseAny(RevWalk.java:817)
+	at org.eclipse.jgit.revwalk.RevWalk.parseCommit(RevWalk.java:730)
+	at org.eclipse.egit.core.synchronize.GitCommitsModelCache.build(GitCommitsModelCache.java:330)
+	at org.eclipse.egit.ui.internal.synchronize.model.GitModelRepository.getChildren(GitModelRepository.java:66)
+	at org.eclipse.egit.ui.internal.synchronize.mapping.GitContainerMapping.getTraversals(GitContainerMapping.java:42)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.addMappingsToScope(SynchronizationScopeManager.java:389)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.addResourcesToScope(SynchronizationScopeManager.java:308)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.performExpandScope(SynchronizationScopeManager.java:279)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.internalRefreshScope(SynchronizationScopeManager.java:239)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.internalRefreshScope(SynchronizationScopeManager.java:248)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.access$1(SynchronizationScopeManager.java:221)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager$2.run(SynchronizationScopeManager.java:181)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2344)
+	at org.eclipse.team.core.mapping.provider.SynchronizationScopeManager.refresh(SynchronizationScopeManager.java:179)
+	at org.eclipse.team.core.subscribers.SubscriberScopeManager.access$1(SubscriberScopeManager.java:1)
+	at org.eclipse.team.core.subscribers.SubscriberScopeManager$2.run(SubscriberScopeManager.java:95)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2344)
+	at org.eclipse.team.core.subscribers.SubscriberScopeManager.refresh(SubscriberScopeManager.java:93)
+	at org.eclipse.team.core.mapping.provider.SynchronizationContext.refresh(SynchronizationContext.java:107)
+	at org.eclipse.team.internal.ui.synchronize.RefreshModelParticipantJob.doRefresh(RefreshModelParticipantJob.java:69)
+	at org.eclipse.team.internal.ui.synchronize.RefreshParticipantJob.run(RefreshParticipantJob.java:309)
+	at org.eclipse.team.internal.ui.synchronize.RefreshModelParticipantJob.run(RefreshModelParticipantJob.java:117)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+
+!ENTRY org.eclipse.egit.core 4 0 2013-04-22 22:40:41.015
+!MESSAGE Missing tree f93e3a1a1525fb5b91020da86e44810c87a2d7bc
+!STACK 0
+org.eclipse.jgit.errors.MissingObjectException: Missing tree f93e3a1a1525fb5b91020da86e44810c87a2d7bc
+	at org.eclipse.jgit.storage.file.WindowCursor.open(WindowCursor.java:127)
+	at org.eclipse.jgit.treewalk.CanonicalTreeParser.reset(CanonicalTreeParser.java:201)
+	at org.eclipse.jgit.treewalk.TreeWalk.parserFor(TreeWalk.java:984)
+	at org.eclipse.jgit.treewalk.TreeWalk.addTree(TreeWalk.java:468)
+	at org.eclipse.egit.core.synchronize.GitSyncCache.loadDataFromGit(GitSyncCache.java:130)
+	at org.eclipse.egit.core.synchronize.GitSyncCache.getAllData(GitSyncCache.java:83)
+	at org.eclipse.egit.core.synchronize.GitSyncCache.getAllData(GitSyncCache.java:63)
+	at org.eclipse.egit.core.synchronize.GitResourceVariantTreeSubscriber.refresh(GitResourceVariantTreeSubscriber.java:181)
+	at org.eclipse.team.core.subscribers.Subscriber.refresh(Subscriber.java:466)
+	at org.eclipse.team.core.subscribers.SubscriberMergeContext.refresh(SubscriberMergeContext.java:85)
+	at org.eclipse.team.core.mapping.provider.SynchronizationContext.refresh(SynchronizationContext.java:109)
+	at org.eclipse.team.internal.ui.synchronize.RefreshModelParticipantJob.doRefresh(RefreshModelParticipantJob.java:69)
+	at org.eclipse.team.internal.ui.synchronize.RefreshParticipantJob.run(RefreshParticipantJob.java:309)
+	at org.eclipse.team.internal.ui.synchronize.RefreshModelParticipantJob.run(RefreshModelParticipantJob.java:117)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+
+!ENTRY org.eclipse.egit.core 4 0 2013-04-22 22:41:13.668
+!MESSAGE Missing tree f93e3a1a1525fb5b91020da86e44810c87a2d7bc
+!STACK 0
+org.eclipse.jgit.errors.MissingObjectException: Missing tree f93e3a1a1525fb5b91020da86e44810c87a2d7bc
+	at org.eclipse.jgit.storage.file.WindowCursor.open(WindowCursor.java:127)
+	at org.eclipse.jgit.treewalk.CanonicalTreeParser.reset(CanonicalTreeParser.java:201)
+	at org.eclipse.jgit.treewalk.TreeWalk.parserFor(TreeWalk.java:984)
+	at org.eclipse.jgit.treewalk.TreeWalk.addTree(TreeWalk.java:468)
+	at org.eclipse.egit.core.synchronize.GitSyncCache.loadDataFromGit(GitSyncCache.java:130)
+	at org.eclipse.egit.core.synchronize.GitSyncCache.getAllData(GitSyncCache.java:85)
+	at org.eclipse.egit.core.synchronize.GitSyncCache.getAllData(GitSyncCache.java:63)
+	at org.eclipse.egit.core.synchronize.GitResourceVariantTreeSubscriber.refresh(GitResourceVariantTreeSubscriber.java:181)
+	at org.eclipse.egit.core.synchronize.GitSubscriberMergeContext.refreshResources(GitSubscriberMergeContext.java:191)
+	at org.eclipse.egit.core.synchronize.GitSubscriberMergeContext.scanDeltaAndRefresh(GitSubscriberMergeContext.java:180)
+	at org.eclipse.egit.core.synchronize.GitSubscriberMergeContext.handleResourceChange(GitSubscriberMergeContext.java:164)
+	at org.eclipse.egit.core.synchronize.GitSubscriberMergeContext.access$1(GitSubscriberMergeContext.java:156)
+	at org.eclipse.egit.core.synchronize.GitSubscriberMergeContext$2.resourceChanged(GitSubscriberMergeContext.java:78)
+	at org.eclipse.core.internal.events.NotificationManager$1.run(NotificationManager.java:291)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.core.internal.events.NotificationManager.notify(NotificationManager.java:285)
+	at org.eclipse.core.internal.events.NotificationManager.broadcastChanges(NotificationManager.java:149)
+	at org.eclipse.core.internal.resources.Workspace.broadcastPostChange(Workspace.java:395)
+	at org.eclipse.core.internal.resources.Workspace.endOperation(Workspace.java:1530)
+	at org.eclipse.core.internal.resources.InternalWorkspaceJob.run(InternalWorkspaceJob.java:45)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
