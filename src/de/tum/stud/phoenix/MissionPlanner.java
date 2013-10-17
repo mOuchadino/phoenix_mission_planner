@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Graphics;
+
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -39,18 +40,6 @@ public class MissionPlanner extends JFrame {
 		super("Phoenix Mission Planner");
 		phoenix= new Phoenix();
 		mapReader = new MapReader(mapName);
-		try {
-			org.ros.RosRun.main(new String[] { "de.tum.stud.phoenix.Listener" });
-		} catch (Exception e3) {
-			// TODO Auto-generated catch block
-			e3.printStackTrace();
-		}
-		try {
-			org.ros.RosRun.main(new String[] { "de.tum.stud.phoenix.Talker" });
-		} catch (Exception e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
 
 		try {
 			org.ros.RosRun.main(new String[] { "de.tum.stud.phoenix.NavCmdPublisher" });
@@ -63,7 +52,7 @@ public class MissionPlanner extends JFrame {
 		try {
 			org.ros.RosRun.main(new String[] { "de.tum.stud.phoenix.PoseListener" });
 			poseListener = ApplicationContext.getNode(PoseListener.class);
-			//poseListener.setPhoenix(phoenix);
+			poseListener.setPhoenix(phoenix);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

@@ -17,6 +17,7 @@ public class PoseListener extends AbstractNodeMain {
 
 	public PoseListener() {
 		super();
+		ApplicationContext.put(PoseListener.class, this);
 	}
 
 	public void setPhoenix(Phoenix phoenix) {

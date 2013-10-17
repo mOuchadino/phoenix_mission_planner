@@ -5,7 +5,6 @@ import org.ros.namespace.GraphName;
 import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Publisher;
-import org.ros.rosjava_geometry.Vector3;
 
 /**
 When simulating a flight, we publish a geometry_msgs/Twist message on the /cmd_vel topic with the desired velocities and angles.
@@ -39,20 +38,18 @@ public class NavCmdPublisher extends AbstractNodeMain {
 				}				
 				geometry_msgs.Twist twist = publisher.newMessage();
 				std_msgs.String str = stringPublisher.newMessage();
-
 				
-				Vector3 linear = new Vector3(phoenix.getLocation().getX(),phoenix.getLocation().getY(),0);
-				Vector3 angular = new Vector3(0,0,phoenix.getYaw());
-				MyVector3 lv3=  new MyVector3();
-				MyVector3 av3=  new MyVector3();
-				twist.setLinear(linear.toVector3Message(lv3));
-				twist.setAngular(angular.toVector3Message(av3));
+				twist.getLinear().setX(phoenix.getLocation().getX());
+				twist.getLinear().setY(phoenix.getLocation().getY());
+				twist.getLinear().setZ(0);
+				twist.getAngular().setX(0);
+				twist.getAngular().setY(0);
+				twist.getAngular().setZ(phoenix.getYaw());
+
 		        str.setData(String.format("Phoenix at %f %f \n", phoenix.getLocation().getX(),phoenix.getLocation().getY()));
 				
 				publisher.publish(twist);
 		        stringPublisher.publish(str);
-
-				System.out.format("Phoenix at %f %f \n", phoenix.getLocation().getX(),phoenix.getLocation().getY());
 				Thread.sleep(1000/hz);
 			}
 		});
