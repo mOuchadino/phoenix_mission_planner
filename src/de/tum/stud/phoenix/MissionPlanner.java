@@ -63,7 +63,7 @@ public class MissionPlanner extends JFrame {
 		try {
 			org.ros.RosRun.main(new String[] { "de.tum.stud.phoenix.PoseListener" });
 			poseListener = ApplicationContext.getNode(PoseListener.class);
-			poseListener.setPhoenix(phoenix);
+			//poseListener.setPhoenix(phoenix);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

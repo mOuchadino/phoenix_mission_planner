@@ -6,7 +6,6 @@ import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Publisher;
 import org.ros.rosjava_geometry.Vector3;
-import geometry_msgs.MyVector3;
 
 /**
 When simulating a flight, we publish a geometry_msgs/Twist message on the /cmd_vel topic with the desired velocities and angles.
