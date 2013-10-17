@@ -5,20 +5,20 @@
 	<classpathentry kind="lib" path="libs/guava-15.0.jar"/>
 	<classpathentry kind="lib" path="libs/junit-4.11.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Users/tatsch/ros_catkin_ws/src/phoenix_mission_planner/libs/geometry_msgs-1.10.2.jar"/>
-	<classpathentry kind="lib" path="/Users/tatsch/ros_catkin_ws/src/phoenix_mission_planner/libs/rosgraph_msgs-1.9.50.jar"/>
-	<classpathentry kind="lib" path="/Users/tatsch/ros_catkin_ws/src/phoenix_mission_planner/libs/std_msgs-0.5.8.jar"/>
-	<classpathentry kind="lib" path="/Users/tatsch/ros_catkin_ws/src/phoenix_mission_planner/libs/apache_xmlrpc_client-0.1.3.jar"/>
-	<classpathentry kind="lib" path="/Users/tatsch/ros_catkin_ws/src/phoenix_mission_planner/libs/apache_xmlrpc_common-0.1.3.jar"/>
-	<classpathentry kind="lib" path="/Users/tatsch/ros_catkin_ws/src/phoenix_mission_planner/libs/apache_xmlrpc_server-0.1.3.jar"/>
-	<classpathentry kind="lib" path="/Users/tatsch/ros_catkin_ws/src/phoenix_mission_planner/libs/message_generation-0.1.6.jar"/>
-	<classpathentry kind="lib" path="/Users/tatsch/ros_catkin_ws/src/phoenix_mission_planner/libs/rosjava_geometry-0.1.3.jar"/>
-	<classpathentry kind="lib" path="/Users/tatsch/ros_catkin_ws/src/phoenix_mission_planner/libs/rosjava-0.1.3.jar"/>
 	<classpathentry kind="lib" path="libs/commons-logging-1.1.3.jar"/>
 	<classpathentry kind="lib" path="libs/ws-commons-util-1.0.2.jar"/>
 	<classpathentry kind="lib" path="libs/netty-3.7.0.Final.jar"/>
 	<classpathentry kind="lib" path="libs/commons-codec-1.6.jar"/>
 	<classpathentry kind="lib" path="libs/commons-pool-1.6.jar"/>
 	<classpathentry kind="lib" path="libs/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/geometry_msgs-1.10.2.jar"/>
+	<classpathentry kind="lib" path="libs/message_generation-0.1.6.jar"/>
+	<classpathentry kind="lib" path="libs/rosgraph_msgs-1.9.50.jar"/>
+	<classpathentry kind="lib" path="libs/rosjava_geometry-0.1.3.jar"/>
+	<classpathentry kind="lib" path="libs/rosjava-0.1.3.jar"/>
+	<classpathentry kind="lib" path="libs/std_msgs-0.5.8.jar"/>
+	<classpathentry kind="lib" path="libs/apache_xmlrpc_client-0.1.3.jar"/>
+	<classpathentry kind="lib" path="libs/apache_xmlrpc_common-0.1.3.jar"/>
+	<classpathentry kind="lib" path="libs/apache_xmlrpc_server-0.1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
