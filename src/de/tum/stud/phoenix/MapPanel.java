@@ -1,36 +1,44 @@
 package de.tum.stud.phoenix;
+import geometry_msgs.Point;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-
 
 public class MapPanel extends JPanel{
 
 	private static final long serialVersionUID = -6348356140496920472L;
-	private BufferedImage resizedImage;
+	private BufferedImage resizedImage,phoenixImg, goalImg, flagImg;
 	private MapNode[][] map;
-
-	int mapWidth;
-	int mapHeight;
-
+	private int mapWidth, mapHeight;
 	private ArrayList<Point> wayPoints = new ArrayList<Point>();
-	private ArrayList<Point> wayPointsSmoothed= new ArrayList<Point>();
-	private Route route = new Route();
+	private Trajectory trajectory;
+	private Path path = new Path();
 	private Phoenix phoenix;
-	public boolean drawRoute=false;
+	private boolean drawCostMap=false;
 
-	BufferedImage phoenixImg, goalImg, flagImg;
 
+	public void enableCostMap() {
+		this.drawCostMap = true;
+		this.repaint();
+		System.out.println("Enabled Costmap");
+	}
+
+	public void disableCostMap() {
+		this.drawCostMap = false;
+		this.repaint();
+		System.out.println("Disabled Costmap");
+	}
 
 	public MapPanel(BufferedImage resizedImage,MapNode[][] map, Phoenix phoenix) {               
 		this.resizedImage=resizedImage;
@@ -48,13 +56,12 @@ public class MapPanel extends JPanel{
 		}
 	}
 
-	public Route getRoute() {
-		return route;
+	public Path getPath() {
+		return path;
 	}
 
-	public void setRoute(Route route) {
-		this.route = route;
-		drawRoute=true;
+	public void setPath(Path path) {
+		this.path = path;
 	}
 
 	public ArrayList<Point> getWayPoints() {
@@ -65,14 +72,6 @@ public class MapPanel extends JPanel{
 		this.wayPoints = wayPoints;
 	}
 
-	public ArrayList<Point> getWayPointsSmoothed() {
-		return wayPointsSmoothed;
-	}
-
-	public void setTrajectory(ArrayList<Point> wayPointsSmoothed) {
-		this.wayPointsSmoothed = wayPointsSmoothed;
-	}
-
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -81,22 +80,19 @@ public class MapPanel extends JPanel{
 		//draw the map as image
 		g2d.drawImage(resizedImage, 0, 0, null);
 
-		/*///overlay the costMap
-		for(int i = 0; i < mapWidth; i++) {
-			for(int j = 0; j < mapHeight; j++) {
-				if (costMap[i][j]>=2000) {
-					//g2d.setColor(new Color(0,0,0));
-					continue;
-				}else if(costMap[i][j]>=14) {
-					g2d.setColor(new Color(0.2f, 0.2f,0.2f,0.2f));
-				}else if(costMap[i][j]>=1){
-					g2d.setColor(new Color(255,255,255));
+		//overlay the costMap
+		if (drawCostMap) {
+			for(int i = 0; i < mapWidth; i++) {
+				for(int j = 0; j < mapHeight; j++) {
+					float grey = (2001 - map[j][i].cost) / 2001f;
+					g2d.setColor(new Color(grey,grey,grey));
+					g2d.drawLine(i,j,i,j);  
 				}
-				g2d.drawLine(i,j,i,j);  
 			}
-		}*/
-		
-		//overlay the Map
+		}
+
+		//overlay bushfire planner
+		/*
 		for(int i = 0; i < mapWidth; i++) {
 			for(int j = 0; j < mapHeight; j++) {
 				if (map[j][i].nextObstacleDistance==0 ) {
@@ -110,33 +106,37 @@ public class MapPanel extends JPanel{
 					g2d.setColor(Color.ORANGE);
 				g2d.drawLine(i,j,i,j);  
 			}
-		}
-
+		}*/
 
 
 		BasicStroke stroke3= new BasicStroke(2.5f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL);
 		g2d.setStroke(stroke3);
 
-		//draw route in red
-		if(drawRoute){
+		//draw path in red
+		if(path!=null){
 			g2d.setColor(new Color(255, 0,0));
-			for(ArrayList<Point> segment:route.getSegments()){
+			for(ArrayList<Point> segment:path.getSegments()){
 				for (int i=0; i<segment.size()-2; i++ ) {
-					g2d.drawLine(segment.get(i).x,segment.get(i).y,segment.get(i+1).x,segment.get(i+1).y);  
+					g2d.drawLine((int)segment.get(i).getX(),(int)segment.get(i).getY(),(int)segment.get(i+1).getX(),(int)segment.get(i+1).getY());  
 				} 
 			} 
 		}
 
-		//draw smoothed path in blue
-		g2d.setColor(new Color(0, 0, 255));
-		for (int i=0; i<wayPointsSmoothed.size()-1; i++ ) {
-			g2d.drawLine(wayPointsSmoothed.get(i).x,wayPointsSmoothed.get(i).y,wayPointsSmoothed.get(i+1).x,wayPointsSmoothed.get(i+1).y);  
-		} 
+		//draw trajectory in blue
+		if(trajectory!=null){
+			g2d.setColor(new Color(0, 0, 255));
+			for(ArrayList<Point> segment:path.getSegments()){
+					for (int i=0; i<segment.size()-1; i++ ) {
+						g2d.drawLine((int)segment.get(i).getX(),(int)segment.get(i).getY(),(int)segment.get(i+1).getX(),(int)segment.get(i+1).getY());  
+					}
+			}
+		}
 
-		//draw original path in black
+
+		//draw original bee-line path in black
 		g2d.setColor(new Color(0, 0, 0));
 		for (int i=0; i<wayPoints.size()-1; i++ ) {
-			g2d.drawLine(wayPoints.get(i).x,wayPoints.get(i).y,wayPoints.get(i+1).x,wayPoints.get(i+1).y);
+			g2d.drawLine((int)wayPoints.get(i).getX(),(int)wayPoints.get(i).getY(),(int)wayPoints.get(i+1).getX(),(int)wayPoints.get(i+1).getY());
 		}
 
 		// draw waypoints and goal
@@ -144,19 +144,28 @@ public class MapPanel extends JPanel{
 			if(wayPoints.indexOf(p)==0)
 			{
 			} else if (wayPoints.indexOf(p)==wayPoints.size()-1){//draw goal
-				g2d.drawImage(goalImg, p.x-25, p.y-40, null);
+				g2d.drawImage(goalImg, (int)p.getX()-25, (int)p.getY()-40, null);
 			} else {//draw via point
-				g2d.drawImage(flagImg, p.x-16, p.y-30, null);
+				g2d.drawImage(flagImg, (int)p.getX()-16, (int)p.getY()-30, null);
 			}
 		}
 
 		//calculate the transform of the phoenix
-		double angle = Math.toRadians(phoenix.getGlobalYaw());
-		double centerX = phoenixImg.getWidth() / 2;
-		double centerY = phoenixImg.getHeight() / 2;
-		AffineTransform tx = AffineTransform.getRotateInstance(angle, centerX, centerY);
+
+		double globalYaw = Math.asin(2*phoenix.getPose().getOrientation().getX()*phoenix.getPose().getOrientation().getY() + 2*phoenix.getPose().getOrientation().getZ()*phoenix.getPose().getOrientation().getW());
+		double centerX = phoenixImg.getWidth()/2;
+		double centerY = phoenixImg.getHeight()/2;
+		AffineTransform tx = AffineTransform.getRotateInstance(globalYaw, centerX, centerY);
 		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
 		// Drawing the rotated image at the required drawing locations
-		g2d.drawImage(op.filter(phoenixImg, null), ((int)phoenix.getLocation().getX())-35, ((int)phoenix.getLocation().getY())-35, null);
+		g2d.drawImage(op.filter(phoenixImg, null), ((int)phoenix.getPose().getPosition().getX())-35, ((int)phoenix.getPose().getPosition().getY())-35, null);
+	}
+
+	public Trajectory getTrajectory() {
+		return trajectory;
+	}
+
+	public void setTrajectory(Trajectory trajectory) {
+		this.trajectory = trajectory;
 	}
 }

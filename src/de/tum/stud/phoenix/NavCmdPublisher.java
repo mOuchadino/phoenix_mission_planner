@@ -7,12 +7,17 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Publisher;
 
 /**
-When simulating a flight, we publish a geometry_msgs/Twist message on the /cmd_vel topic with the desired velocities and angles.
+When flying we publish a geometry_msgs/Twist message
+on the /cmd_vel topic
+with the desired linear and angular velocities
+additionally the phoenix will only accept the commands if sim==false
  */
 
 public class NavCmdPublisher extends AbstractNodeMain {
-	private Phoenix phoenix;
+	private Trajectory trajectory;
 	private int hz; //publishing frequency in hz
+	private int timeStep;
+	private boolean simulation;
 
 	@Override
 	public GraphName getDefaultNodeName() {
@@ -21,8 +26,10 @@ public class NavCmdPublisher extends AbstractNodeMain {
 
 	@Override
 	public void onStart(final ConnectedNode connectedNode) {
-		final Publisher<geometry_msgs.Twist> publisher = connectedNode.newPublisher("cmd_vel", geometry_msgs.Twist._TYPE);
-		final Publisher<std_msgs.String> stringPublisher = connectedNode.newPublisher("cmd_vel2", std_msgs.String._TYPE);
+		ApplicationContext.put(ConnectedNode.class,connectedNode);
+		final Publisher<geometry_msgs.Twist> twistPublisher = connectedNode.newPublisher("cmd_vel", geometry_msgs.Twist._TYPE);
+		final Publisher<std_msgs.Bool> boolPublisher = connectedNode.newPublisher("sim", std_msgs.Bool._TYPE);
+
 		connectedNode.executeCancellableLoop(new CancellableLoop() {
 
 			@Override
@@ -31,41 +38,54 @@ public class NavCmdPublisher extends AbstractNodeMain {
 
 			@Override
 			protected void loop() throws InterruptedException {
-				if ( phoenix == null ) {
-					System.out.println("Phoenix object not yet injected.");
-					Thread.sleep(2000);
+				if ( trajectory == null ) {
+					Thread.sleep(1000/hz);
 					return;
-				}				
-				geometry_msgs.Twist twist = publisher.newMessage();
-				std_msgs.String str = stringPublisher.newMessage();
-				
-				twist.getLinear().setX(phoenix.getLocation().getX());
-				twist.getLinear().setY(phoenix.getLocation().getY());
-				twist.getLinear().setZ(0);
-				twist.getAngular().setX(0);
-				twist.getAngular().setY(0);
-				twist.getAngular().setZ(phoenix.getYaw());
+				}	else {
+					if (timeStep<trajectory.segments.size()){
+						geometry_msgs.Twist command = twistPublisher.newMessage();
+						std_msgs.Bool simCommand = boolPublisher.newMessage();
+						
+						command.setLinear(trajectory.getCommand(timeStep).getLinear());
+						command.setAngular(trajectory.getCommand(timeStep).getAngular());
+						
+						if (simulation) {
+							simCommand.setData(true);
+						} else {
+							simCommand.setData(false);
+						}
 
-		        str.setData(String.format("Phoenix at %f %f \n", phoenix.getLocation().getX(),phoenix.getLocation().getY()));
-				
-				publisher.publish(twist);
-		        stringPublisher.publish(str);
-				Thread.sleep(1000/hz);
+						twistPublisher.publish(command);
+						boolPublisher.publish(simCommand);
+						timeStep++;
+					}
+
+					Thread.sleep(1000/hz);
+				}			
 			}
 		});
 	}
-	
+
 	public NavCmdPublisher() {
 		super();
 		ApplicationContext.put(NavCmdPublisher.class, this);
-		hz=1;
+		this.hz=1;
 	}
 
-	public void setPhoenix(Phoenix phoenix) {
-		this.phoenix = phoenix;
+	public void setTrajectory(Trajectory trajectory) {
+		this.trajectory = trajectory;
+		timeStep=0;
 	}
 
 	public void setHz(int hz) {
 		this.hz = hz;
+	}
+
+	public void enableSimulation() {
+		simulation=true;
+	}
+
+	public void disableSimulation() {
+		simulation=false;
 	}
 }

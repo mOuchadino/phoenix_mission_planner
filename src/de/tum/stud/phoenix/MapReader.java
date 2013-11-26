@@ -12,17 +12,19 @@ import javax.imageio.ImageIO;
 
 public class MapReader {
 
-	BufferedImage mapImage;
-	BufferedImage resizedMapImage;
+	BufferedImage mapImage,resizedMapImage;
 	private double scaleFactor=1.0; //20 for tinyfloorplan
-	int[][] map;
+	private double greyThreshold=0.6; //for grey values smaller than the threshold we have an obstacle
+	private int maxDia=15; //max smoothing diameter
+	private int[][] map;
 
 	public MapReader(String mapName) {
-		int maxDia=12;
-		try{
+		try
+		{
 			mapImage = ImageIO.read(new File(mapName));
 			resizedMapImage = resizeImageWithHint(mapImage, mapImage.getType(), (int)(mapImage.getWidth()*scaleFactor), (int)(mapImage.getHeight()*scaleFactor));
-		}catch(IOException e){
+		}
+		catch(IOException e){
 			System.out.println(e.getMessage());
 		}
 
@@ -36,9 +38,10 @@ public class MapReader {
 			for(int j = 0; j < h; j++) {
 				Color color = new Color(resizedMapImage.getRGB(i, j));
 				float[] greyPixel = Color.RGBtoHSB(color.getRed(),color.getGreen(),color.getBlue(),null);
-				if(greyPixel[2]<0.1){
+				if(greyPixel[2]<greyThreshold){
 					map[i][j]=2000;
-					//treat surrounding  with safety
+					//treat surrounding with safety
+
 					for (int dia=1;dia<maxDia;dia++){
 						for(int r=-dia;r<=dia;r++){
 							for(int c=-dia;c<=dia;c++){
@@ -48,6 +51,8 @@ public class MapReader {
 								}
 								try {
 									map[i+r][j+c]+=(maxDia-dia);
+									if (map[i+r][j+c]>2000)
+										map[i+r][j+c]=2000;
 								}
 								catch(ArrayIndexOutOfBoundsException e){
 								}
@@ -76,7 +81,7 @@ public class MapReader {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 		return resizedImage;
 	}
-	
+
 	public BufferedImage getResizedMapImage() {
 		return resizedMapImage;
 	}

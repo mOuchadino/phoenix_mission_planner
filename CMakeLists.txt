@@ -3,7 +3,7 @@
 ##############################################################################
 
 cmake_minimum_required(VERSION 2.8.3)
-project(phoenix_mission_planner)
+project(tum_phoenix_mission_planner)
 
 ##############################################################################
 # Catkin

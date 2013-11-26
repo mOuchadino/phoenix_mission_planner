@@ -1,5 +1,6 @@
 package de.tum.stud.phoenix;
-import java.awt.Point;
+
+import geometry_msgs.Point;
 
 public class MapNode implements Comparable<MapNode>
 	{

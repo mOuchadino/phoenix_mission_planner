@@ -1,64 +1,70 @@
 package de.tum.stud.phoenix;
-import java.awt.Point;
+import geometry_msgs.Point;
+
 import java.util.ArrayList;
 
-//local the trajectory planner accounts for the constraints and generates feasible local trajectories in real-time (collision avoidance)
+import javax.vecmath.Vector3d;
+
+//local the trajectory planner should eventually account for the physical constraints of the phoenix
+//and generates feasible local trajectories in real-time
 
 public class TrajectoryPlanner {
-	  private ArrayList<Point> wayPoints=new ArrayList<Point>();
-	  private ArrayList<Point> wayPointsSmoothed;
-	  private ArrayList<Float> angles = new ArrayList<Float>();
-	  double wdata = 0.5, wsmooth = 0.1, change = 0.01;     // smoothing parameter, what exactly do they do thomas?
+	private ArrayList<Point> wayPoints;
+	private ArrayList<Float> angles = new ArrayList<Float>();
+	private ArrayList<Vector3d> velocityVectors = new ArrayList<Vector3d>();
 
-	
-	public ArrayList<Point> smootheTrajectory(Route route) {
-	    ArrayList<Point> wayPointsTmp = new ArrayList<Point>();
-		for(ArrayList<Point> segment:route.getSegments()){
-			wayPoints.addAll(segment);
-			wayPointsTmp.addAll(segment);
+	public Trajectory plan(Path path){
+		Trajectory trajectory = new Trajectory();
+		for(ArrayList<Point> segment:path.getSegments()){
+			for(Point point:segment){
+				TimeStep timeStep=new TimeStep();
+				timeStep.pose.setPosition(point);				
+				trajectory.segments.add(timeStep);
 			}
+		}
+		//now we can calculate the yaws/psi as
+		double ax,ay,bx,by,psi;
+		for (int i = 0; i < trajectory.segments.size(); i++) {
+			//von 0 nach 1
+			ax=trajectory.segments.get(i).pose.getPosition().getX();
+			ay=trajectory.segments.get(i).pose.getPosition().getY();
+			try {
+
+				bx=trajectory.segments.get(i+1).pose.getPosition().getX();
+				by=trajectory.segments.get(i+1).pose.getPosition().getY();
+			}
+			catch(IndexOutOfBoundsException e){
+				bx=trajectory.segments.get(i).pose.getPosition().getX();
+				by=trajectory.segments.get(i).pose.getPosition().getY();
+			}
+
+			psi = Math.toDegrees(Math.atan2(by,bx) - Math.atan2(ay,ax));
+			//trajectory.segments.get(i+1).pose.setOrientation(arg0);
+			System.out.println("psi "+psi);
+		}
 		
-	    for(int i=1; i<wayPointsTmp.size()-1; i++)
-	    {
-	      wayPointsTmp.get(i).x += wdata*(wayPoints.get(i).x-wayPointsTmp.get(i).x);
-	      wayPointsTmp.get(i).x += wsmooth*(wayPointsTmp.get(i-1).x + 
-	      wayPointsTmp.get(i+1).x - (2.0*wayPointsTmp.get(i).x));
-	      
-	      wayPointsTmp.get(i).y += wdata*(wayPoints.get(i).y-wayPointsTmp.get(i).y);
-	      wayPointsTmp.get(i).y += wsmooth*(wayPointsTmp.get(i-1).y + 
-	      wayPointsTmp.get(i+1).y - (2.0*wayPointsTmp.get(i).y));
-	    }
-	    wayPointsSmoothed=new ArrayList<Point>(wayPointsTmp);
-	    return wayPointsTmp;
-	  }
-	  
-	  public ArrayList<Float> calculateAngles(ArrayList<Point> wps) {
-		 wayPointsSmoothed=wps;
-		System.out.println("Total of "+wayPointsSmoothed.size()+" interpolated waypoints found, calculating angles");
-	    angles.clear();
-	    float alpha=0;
-	    int ax,ay,bx,by;
-	    //for the first angle use derivation from north
-	    bx = wayPointsSmoothed.get(1).x - wayPointsSmoothed.get(0).x;
-	    by = wayPointsSmoothed.get(1).y - wayPointsSmoothed.get(0).y;
-	    alpha =(float) Math.toDegrees(Math.atan2(by,bx) - Math.atan2(-1,0));
-	    angles.add( alpha);
-	    System.out.println("at wp 0 delta yaw "+ alpha); //drehwinkel in der horizontalen ebene bei flugzeugen yaw
+		return trajectory;
+	}
 
-	    
-	    for (int a=0; a<wayPointsSmoothed.size()-2; a++) {
-	      ax = wayPointsSmoothed.get(a+1).x - wayPointsSmoothed.get(a).x;
-	      ay = wayPointsSmoothed.get(a+1).y - wayPointsSmoothed.get(a).y;
-	      bx = wayPointsSmoothed.get(a+2).x - wayPointsSmoothed.get(a+1).x;
-	      by = wayPointsSmoothed.get(a+2).y - wayPointsSmoothed.get(a+1).y;
-	      alpha =(float) Math.toDegrees(Math.atan2(by,bx) - Math.atan2(ay,ax));
-	      angles.add( alpha);
-	      System.out.println("at wp " +a+1+ " delta yaw "+ alpha); //drehwinkel in der horizontalen ebene bei flugzeugen yaw
-	    }
-	    //FIXME
-	    angles.add( (float) 0.0);
-	    angles.add( (float) 0.0);
+	public ArrayList<Float> calculatePsiDot(ArrayList<Float> psis) {
+		ArrayList<Float> psidots=new ArrayList<Float>();
+		for (int i = 0; i < psis.size()-1; i++) {
+			psidots.add(psis.get(i+1)-psis.get(i));
+		}
+		return psidots;
+	}
 
-	    return angles;
-	  }
+	public ArrayList<Vector3d> calculateVelocities(ArrayList<Point> wps) {
+		Vector3d v=new Vector3d();
+		velocityVectors.clear();
+
+		for (int a=0; a<wps.size()-1; a++) {
+			v.x=wps.get(a+1).getX()-wps.get(a).getX();
+			v.y=wps.get(a+1).getY()-wps.get(a).getY();
+			v.z=0; //bz-az;
+			velocityVectors.add(v);
+		}
+
+		return velocityVectors;
+	}
 }
